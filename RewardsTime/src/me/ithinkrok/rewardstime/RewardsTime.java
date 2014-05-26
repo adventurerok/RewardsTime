@@ -40,7 +40,7 @@ public class RewardsTime extends JavaPlugin {
 	public String white = ChatColor.WHITE.toString();
 
 	public boolean scheduled = false;
-	public int scheduleTime = 300;
+	public int scheduleTime = 3;
 
 	public HashMap<UUID, RewardsData> fiveChange = new HashMap<>();
 
@@ -53,6 +53,8 @@ public class RewardsTime extends JavaPlugin {
 	public boolean voteRewards = true;
 	public boolean rewardCreative = false;
 	public FileConfiguration config;
+	
+	public EnumMap<GameMode, Boolean> enabledGameModes = new EnumMap<>(GameMode.class);
 
 	public Economy economy = null;
 
@@ -152,12 +154,12 @@ public class RewardsTime extends JavaPlugin {
 
 	public void loadConfigValues() {
 		config = getConfig();
-		mobRewards = config.getBoolean("mobrewards", true);
-		craftRewards = config.getBoolean("craftrewards", true);
-		smeltRewards = config.getBoolean("smeltrewards", true);
-		blockRewards = config.getBoolean("blockrewards", true);
-		voteRewards = config.getBoolean("voterewards", true);
-		mobArmorBonus = config.getBoolean("mobarmorbonus", true);
+		mobRewards = config.getBoolean("rewards.mob", true);
+		craftRewards = config.getBoolean("rewards.craft", true);
+		smeltRewards = config.getBoolean("rewards.smelt", true);
+		blockRewards = config.getBoolean("rewards.block", true);
+		voteRewards = config.getBoolean("rewards.vote", true);
+		mobArmorBonus = config.getBoolean("bonus.mobarmor", true);
 		rewardCreative = config.getBoolean("rewardcreative", false);
 		armorMaterial.put(ArmorMaterial.DIAMOND,
 				loadBonus("mobarmor.material.diamond"));
@@ -177,6 +179,12 @@ public class RewardsTime extends JavaPlugin {
 		armorType.put(ArmorType.LEGGINGS, loadBonus("mobarmor.type.leggings"));
 		armorType.put(ArmorType.BOOTS, loadBonus("mobarmor.type.boots"));
 		armorType.put(ArmorType.OTHER, loadBonus("mobarmor.type.other"));
+		
+		enabledGameModes.put(GameMode.SURVIVAL, config.getBoolean("gamemodes.survival", true));
+		enabledGameModes.put(GameMode.CREATIVE, config.getBoolean("gamemodes.creative", false));
+		enabledGameModes.put(GameMode.ADVENTURE, config.getBoolean("gamemodes.adventure", true));
+		
+		scheduleTime = config.getInt("rewardtime", 500);
 	}
 
 	public Object parseObject(String str) {
@@ -196,6 +204,9 @@ public class RewardsTime extends JavaPlugin {
 
 	public void playerReward(Player player, double gain, double bonus,
 			double loss) {
+		double total = gain + bonus - loss;
+		if(total > 0) economy.depositPlayer(player, total);
+		else if(total < 0) economy.withdrawPlayer(player, -total);
 		RewardsData data = fiveChange.get(player.getUniqueId());
 		if (data == null) {
 			data = new RewardsData();
@@ -211,7 +222,7 @@ public class RewardsTime extends JavaPlugin {
 					alertRewards();
 
 				}
-			}, scheduleTime);
+			}, scheduleTime * 20);
 			scheduled = true;
 		}
 

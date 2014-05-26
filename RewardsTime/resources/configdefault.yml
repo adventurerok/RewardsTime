@@ -3,26 +3,27 @@
 #Log extra details
 log: false
 
-#Enable rewards from killing mobs
-mobrewards: true
+#Enable rewards for different activities
+rewards:
+    craft: true
+    smelt: true
+    block: true
+    mob: true
+    vote: true
+    
+#Enable bonus rewards
+bonus:
+    mobarmor: true
 
-#Enable rewards from mining blocks
-blockrewards: true
+#Enable rewards in these gamemodes
+gamemodes:
+    survival: true
+    creative: false
+    adventure: true
 
-#Enable rewards from crafting items
-craftrewards: true
+#Number of seconds to wait before notifying players of their gains    
+rewardtime: 300
 
-#Enable rewards from smelting items
-smeltrewards: true
-
-#Enable rewards from voting
-voterewards: true
-
-#Enable players in creative mode getting rewards
-rewardcreative: false
-
-#Enable bonus rewards for killing mobs wearing armor
-mobarmorbonus: true
 
 #Crafting rewards
 # Format - 

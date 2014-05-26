@@ -2,7 +2,6 @@ package me.ithinkrok.rewardstime;
 
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
-import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -26,7 +25,7 @@ public class RewardsListener implements Listener {
 		if(!plugin.mobRewards) return;
 		Player killer = event.getEntity().getKiller();
 		if(killer == null) return;
-		if(!plugin.rewardCreative && killer.getGameMode() == GameMode.CREATIVE) return;
+		if(!plugin.enabledGameModes.get(killer.getGameMode())) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
 		double amountStart = amount;
@@ -54,13 +53,10 @@ public class RewardsListener implements Listener {
 					amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 				}
 			}
-			plugin.economy.depositPlayer(killer, amount);
-			if(amountStart == amount) killer.sendMessage("You recieve $" + amount);
-			else killer.sendMessage("You recieve $" + amountStart + " + $" + (amount - amountStart) + " bonus");
+			plugin.playerReward(killer, amountStart, amount - amountStart, 0);
 		}
 		else if(amount < 0){
-			killer.sendMessage("You lose $" + (-amount));
-			plugin.economy.withdrawPlayer(killer, -amount);
+			plugin.playerReward(killer, 0, 0, -amount);
 		}
 	}
 	
@@ -70,29 +66,25 @@ public class RewardsListener implements Listener {
 		if(!(event.getWhoClicked() instanceof Player)) return;
 		String item = event.getCurrentItem().getType().toString().toLowerCase();
 		Player player = (Player) event.getWhoClicked();
-		if(!plugin.rewardCreative && player.getGameMode() == GameMode.CREATIVE) return;
+		if(!plugin.enabledGameModes.get(player.getGameMode())) return;
 		double amount = plugin.config.getDouble("craft." + item + ".money", 0);
 		String withMeta = "craft." + item + "/" + event.getCurrentItem().getDurability() +".money";
 		if(plugin.config.contains(withMeta)){
 			amount = plugin.config.getDouble(withMeta);
 		}
 		amount *= event.getCurrentItem().getAmount();
-		if(amount == 0){
-			return;
-		}
+		if(amount == 0) return;
 		if(amount > 0){
-			plugin.economy.depositPlayer(player, amount);
-			player.sendMessage("You recieve $" + amount + " for crafting " + item + " x " + event.getCurrentItem().getAmount());
+			plugin.playerReward(player, amount, 0, 0);
 		} else if(amount < 0){
-			plugin.economy.withdrawPlayer(player, -amount);
-			player.sendMessage("You lose $" + amount + " for crafting " + item + " x " + event.getCurrentItem().getAmount());
+			plugin.playerReward(player, 0, 0, -amount);
 		}
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSmeltItem(FurnaceExtractEvent event){
 		if(!plugin.smeltRewards) return;
-		if(!plugin.rewardCreative && event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+		if(!plugin.enabledGameModes.get(event.getPlayer().getGameMode())) return;
 		String item = event.getItemType().toString().toLowerCase();
 		Player player = event.getPlayer();
 		double amount = plugin.config.getDouble("smelt." + item + ".money", 0);
@@ -103,11 +95,9 @@ public class RewardsListener implements Listener {
 		amount *= event.getItemAmount();
 		if(amount == 0) return;
 		if(amount > 0){
-			plugin.economy.depositPlayer(player, amount);
-			player.sendMessage("You recieve $" + amount + " for smelting " + item + " x " + event.getItemAmount());
+			plugin.playerReward(player, amount, 0, 0);
 		} else if(amount < 0){
-			plugin.economy.withdrawPlayer(player, -amount);
-			player.sendMessage("You lose $" + amount + " for smelting " + item + " x " + event.getItemAmount());
+			plugin.playerReward(player, 0, 0, -amount);
 		}
 	}
 	
@@ -116,7 +106,7 @@ public class RewardsListener implements Listener {
 	public void onMineBlock(BlockBreakEvent event){
 		if(!plugin.blockRewards) return;
 		if(event.getPlayer() == null) return;
-		if(!plugin.rewardCreative && event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
+		if(!plugin.enabledGameModes.get(event.getPlayer().getGameMode())) return;
 		String item = event.getBlock().getType().toString().toLowerCase();
 		int data = event.getBlock().getData();
 		double amount = plugin.config.getDouble("block." + item + ".money", 0);
@@ -126,11 +116,9 @@ public class RewardsListener implements Listener {
 		}
 		if(amount == 0) return;
 		if(amount > 0){
-			plugin.economy.depositPlayer(event.getPlayer(), amount);
-			event.getPlayer().sendMessage("You recieve $" + amount + " for mining " + item);
+			plugin.playerReward(event.getPlayer(), amount, 0, 0);
 		} else if(amount < 0){
-			plugin.economy.withdrawPlayer(event.getPlayer(), -amount);
-			event.getPlayer().sendMessage("You lose $" + amount + " for mining " + item);
+			plugin.playerReward(event.getPlayer(), 0, 0, -amount);
 		}
 	}
 }
