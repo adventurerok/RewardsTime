@@ -119,6 +119,7 @@ public class RewardsTime extends JavaPlugin {
 				sender.sendMessage("RewardsTime commands: ");
 				sender.sendMessage("- /rewardstime reload : Reloads the config");
 				sender.sendMessage("- /rewardstime set <type> <item/mob name> <field> <value>");
+				sender.sendMessage("- /rewardstime get <type> <item/mob name> <field>");
 				return true;
 			} else if("reload".equalsIgnoreCase(args[0])) {
 				reloadConfig();
@@ -137,6 +138,7 @@ public class RewardsTime extends JavaPlugin {
 				String type = args[1];
 				String name = args[2];
 				String field = args[3];
+				if(!check(sender, type, name, field)) return true;
 				double val = 0;
 				try {
 					val = Double.parseDouble(args[4]);
@@ -144,45 +146,69 @@ public class RewardsTime extends JavaPlugin {
 					sender.sendMessage("<value> must be a number");
 					return true;
 				}
-				String[] nameParts = name.split("/");
-				if(nameParts.length > 2){
-					sender.sendMessage("Only one metadata slash is allowed");
-					return true;
-				}
-				switch(type) {
-				case "craft":
-				case "smelt":
-				case "block":
-					if(Material.getMaterial(nameParts[0].toUpperCase()) == null){
-						sender.sendMessage("Unknown item: " + nameParts[0]);
-						return true;
-					}
-					break;
-				case "mob":
-					EntityType t = null;
-					try{
-						t = EntityType.valueOf(nameParts[0].toUpperCase());
-					} catch(IllegalArgumentException e){}
-					if(t == null){
-						sender.sendMessage("Unknown entity: " + nameParts[0]);
-						return true;
-					}
-					break;
-				default:
-					sender.sendMessage("Unknown type: " + type + ", types are: [craft, smelt, block, mob]");
-					return true;
-				}
-				if(!field.equals("money")){
-					sender.sendMessage("Unknown field: " + field + ", fields are: [money]");
-					return true;
-				}
 				config.set(type + "." + name.toLowerCase() + "." + field, val);
+				sender.sendMessage(type + "." + name.toLowerCase() + "." + field + " set to " + val);
 				saveConfig();
+				return true;
+			} else if("get".equalsIgnoreCase(args[0])){
+				if(args.length < 4) {
+					sender.sendMessage("Usage: /rewardstime get <type> <name> <field> <value>");
+					sender.sendMessage(" - <type>: The type of reward to get (craft/smelt/block/mob)");
+					sender.sendMessage(" - <name>: The name of the reward to get (item/mob name)");
+					sender.sendMessage(" - <field>: The field to get (use \"money\" to get the money reward)");
+					return true;
+				}
+				String type = args[1];
+				String name = args[2];
+				String field = args[3];
+				if(!check(sender, type, name, field)) return true;
+				String str = type + "." + name.toLowerCase() + "." + field;
+				if(!config.contains(str)){
+					sender.sendMessage("No value is set for " + str);
+				} else {
+					sender.sendMessage(str + " is set to " + config.getDouble(str));
+				}
 				return true;
 			}
 			return false;
 		}
 		return false;
+	}
+	
+	public boolean check(CommandSender sender, String type, String name, String field){
+		String[] nameParts = name.split("/");
+		if(nameParts.length > 2){
+			sender.sendMessage("Only one metadata slash is allowed");
+			return true;
+		}
+		switch(type) {
+		case "craft":
+		case "smelt":
+		case "block":
+			if(Material.getMaterial(nameParts[0].toUpperCase()) == null){
+				sender.sendMessage("Unknown item: " + nameParts[0]);
+				return false;
+			}
+			break;
+		case "mob":
+			EntityType t = null;
+			try{
+				t = EntityType.valueOf(nameParts[0].toUpperCase());
+			} catch(IllegalArgumentException e){}
+			if(t == null){
+				sender.sendMessage("Unknown entity: " + nameParts[0]);
+				return false;
+			}
+			break;
+		default:
+			sender.sendMessage("Unknown type: " + type + ", types are: [craft, smelt, block, mob]");
+			return false;
+		}
+		if(!field.equals("money")){
+			sender.sendMessage("Unknown field: " + field + ", fields are: [money]");
+			return false;
+		}
+		return true;
 	}
 	
 	public RewardsBonus loadBonus(String base){
