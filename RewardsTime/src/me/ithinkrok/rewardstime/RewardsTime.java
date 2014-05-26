@@ -2,6 +2,7 @@ package me.ithinkrok.rewardstime;
 
 import java.io.*;
 import java.util.EnumMap;
+import java.util.HashMap;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 import net.milkbowl.vault.economy.Economy;
@@ -33,6 +34,14 @@ public class RewardsTime extends JavaPlugin {
 		OTHER
 	}
 	
+	public static enum FieldType {
+		BOOLEAN,
+		INTEGER,
+		DOUBLE,
+		STRING,
+		BONUSTYPE
+	}
+	
 	public boolean log = true;
 	public boolean mobRewards = true;
 	public boolean craftRewards = true;
@@ -49,8 +58,13 @@ public class RewardsTime extends JavaPlugin {
 	public EnumMap<ArmorType, RewardsBonus> armorType = new EnumMap<>(ArmorType.class);
 	
 	
+	public HashMap<String, FieldType> fieldTypes = new HashMap<>();
+	
 	@Override
 	public void onEnable() {
+		fieldTypes.put("money", FieldType.DOUBLE);
+		fieldTypes.put("bonus", FieldType.DOUBLE);
+		fieldTypes.put("type", FieldType.BONUSTYPE);
 		File conFile = new File(getDataFolder(), "config.yml");
 		if(!conFile.exists()){ //Cannot use bukkit default config feature as causes unintended side effects
 			try{
@@ -89,6 +103,42 @@ public class RewardsTime extends JavaPlugin {
         return (economy != null);
     }
 	
+	public Object getFieldValue(CommandSender sender, FieldType type, String parse){
+		switch(type){
+		case DOUBLE:
+			try {
+				return Double.parseDouble(parse);
+			} catch(NumberFormatException e){
+				sender.sendMessage("Field must be a number");
+				return null;
+			}
+		case INTEGER:
+			try{
+				return Integer.parseInt(parse);
+			} catch(NumberFormatException e){
+				sender.sendMessage("Field must be an integer");
+			}
+		case STRING:
+			return parse;
+		case BOOLEAN:
+			if(!parse.equalsIgnoreCase("true") && !parse.equalsIgnoreCase("false")){
+				sender.sendMessage("Field must be a boolean (true/false)");
+				return null;
+			} else return Boolean.parseBoolean(parse);
+		case BONUSTYPE:
+			BonusType bonus = null;
+			try{
+				bonus = BonusType.valueOf(parse.toUpperCase());
+			} catch(IllegalArgumentException e){}
+			if(bonus == null){
+				sender.sendMessage("Field must be a BonusType (multiply/add)");
+			}
+			return bonus;
+		default:
+			return null;
+		}
+	}
+	
 	public void loadConfigValues() {
 		config = getConfig();
 		mobRewards = config.getBoolean("mobrewards", true);
@@ -118,44 +168,20 @@ public class RewardsTime extends JavaPlugin {
 			if(args.length < 1){
 				sender.sendMessage("RewardsTime commands: ");
 				sender.sendMessage("- /rewardstime reload : Reloads the config");
-				sender.sendMessage("- /rewardstime set <type> <item/mob name> <field> <value>");
-				sender.sendMessage("- /rewardstime get <type> <item/mob name> <field>");
+				sender.sendMessage("- /rewardstime field <type> <item/mob name> <field> [newvalue]");
 				return true;
 			} else if("reload".equalsIgnoreCase(args[0])) {
 				reloadConfig();
 				loadConfigValues();
 				sender.sendMessage("Config reloaded successfully!");
 				return true;
-			} else if("set".equalsIgnoreCase(args[0])){
-				if(args.length < 5) {
-					sender.sendMessage("Usage: /rewardstime set <type> <name> <field> <value>");
+			} else if("field".equalsIgnoreCase(args[0])){
+				if(args.length < 4) {
+					sender.sendMessage("Usage: /rewardstime set <type> <name> <field> [newvalue]");
 					sender.sendMessage(" - <type>: The type of reward to set (craft/smelt/block/mob)");
 					sender.sendMessage(" - <name>: The name of the reward to set (item/mob name)");
 					sender.sendMessage(" - <field>: The field to set (use \"money\" to set the money reward)");
-					sender.sendMessage(" - <value>: The new value to set the field to (number from -Infinity to +Infinity)");
-					return true;
-				}
-				String type = args[1];
-				String name = args[2];
-				String field = args[3];
-				if(!check(sender, type, name, field)) return true;
-				double val = 0;
-				try {
-					val = Double.parseDouble(args[4]);
-				} catch(NumberFormatException e){
-					sender.sendMessage("<value> must be a number");
-					return true;
-				}
-				config.set(type + "." + name.toLowerCase() + "." + field, val);
-				sender.sendMessage(type + "." + name.toLowerCase() + "." + field + " set to " + val);
-				saveConfig();
-				return true;
-			} else if("get".equalsIgnoreCase(args[0])){
-				if(args.length < 4) {
-					sender.sendMessage("Usage: /rewardstime get <type> <name> <field> <value>");
-					sender.sendMessage(" - <type>: The type of reward to get (craft/smelt/block/mob)");
-					sender.sendMessage(" - <name>: The name of the reward to get (item/mob name)");
-					sender.sendMessage(" - <field>: The field to get (use \"money\" to get the money reward)");
+					sender.sendMessage(" - [newvalue]: The new value to set the field to");
 					return true;
 				}
 				String type = args[1];
@@ -163,10 +189,18 @@ public class RewardsTime extends JavaPlugin {
 				String field = args[3];
 				if(!check(sender, type, name, field)) return true;
 				String str = type + "." + name.toLowerCase() + "." + field;
-				if(!config.contains(str)){
-					sender.sendMessage("No value is set for " + str);
+				if(args.length < 5){
+					if(!config.contains(str)){
+						sender.sendMessage("No value is set for " + str);
+					} else {
+						sender.sendMessage(str + " is set to " + config.get(str));
+					}
 				} else {
-					sender.sendMessage(str + " is set to " + config.getDouble(str));
+					Object val = getFieldValue(sender, fieldTypes.get(field), args[4]);
+					if(val == null) return true;
+					config.set(str, val);
+					sender.sendMessage(str + " set to " + val);
+					saveConfig();
 				}
 				return true;
 			}
@@ -181,6 +215,9 @@ public class RewardsTime extends JavaPlugin {
 			sender.sendMessage("Only one metadata slash is allowed");
 			return true;
 		}
+		
+		boolean isBonus = false;
+		
 		switch(type) {
 		case "craft":
 		case "smelt":
@@ -200,13 +237,42 @@ public class RewardsTime extends JavaPlugin {
 				return false;
 			}
 			break;
+		case "mobarmor.material":
+			ArmorMaterial mat = null;
+			try{
+				mat = ArmorMaterial.valueOf(name.toUpperCase());
+			} catch(IllegalArgumentException e){}
+			if(mat == null){
+				sender.sendMessage("Unknown armor material: " + name);
+				return false;
+			}
+			isBonus = true;
+			break;
+		case "mobarmor.type":
+			ArmorType part = null;
+			try{
+				part = ArmorType.valueOf(name.toUpperCase());
+			} catch(IllegalArgumentException e){}
+			if(part == null){
+				sender.sendMessage("Unknown armor type: " + name);
+				return false;
+			}
+			isBonus = true;
+			break;
 		default:
 			sender.sendMessage("Unknown type: " + type + ", types are: [craft, smelt, block, mob]");
 			return false;
 		}
-		if(!field.equals("money")){
-			sender.sendMessage("Unknown field: " + field + ", fields are: [money]");
-			return false;
+		if(isBonus){
+			if(!field.equals("type") && !field.equals("bonus")){
+				sender.sendMessage("Unknown bonus field: " + field + ", fields are [type, bonus]");
+				return false;
+			}
+		} else {
+			if(!field.equals("money")){
+				sender.sendMessage("Unknown field: " + field + ", fields are: [money]");
+				return false;
+			}
 		}
 		return true;
 	}
