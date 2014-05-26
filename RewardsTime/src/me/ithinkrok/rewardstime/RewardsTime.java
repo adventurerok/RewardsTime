@@ -210,6 +210,12 @@ public class RewardsTime extends JavaPlugin {
 		scheduleTime = config.getInt("rewardtime", 500);
 		damageTimeout = config.getInt("damagetimeout", 60);
 		voteSaveMinutes = config.getInt("votesaveminutes", 15);
+		
+		for(int d = 0; d < 250; ++d){
+			if(config.contains("votes.every." + d + ".money")){
+				voteEveryList.add(d);
+			}
+		}
 	}
 
 	public Object parseObject(String str) {

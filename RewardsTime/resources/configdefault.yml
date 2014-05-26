@@ -52,8 +52,9 @@ block:
 
 
 #Rewards for voting
-#Note: "every" cannot go higher than 1000. "achieve" can however
+#Note: "every" cannot go higher than 250. "achieve" can however
 #Note: You will only recieve the reward from the highest you have won in the "every" list
+
 votes:
     every:
         1:
