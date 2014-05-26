@@ -3,8 +3,18 @@ log: true
 mobrewards: true
 blockrewards: true
 craftrewards: true
+smeltrewards: true
 voterewards: true
 
+mobarmorbonus: true
+
+craft:
+    iron_pickaxe:
+        money: 4
+        
+smelt:
+    iron_ingot:
+        money: 1
 
 mobarmor:
     material:
