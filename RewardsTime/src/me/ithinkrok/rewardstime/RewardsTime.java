@@ -212,7 +212,7 @@ public class RewardsTime extends JavaPlugin {
 					sender.sendMessage(" - [newvalue]: The value to set the field to");
 					return true;
 				}
-				String field = args[2];
+				String field = args[1];
 				if(args.length < 3){
 					if(!config.contains(field)){
 						sender.sendMessage("No value is set for " + field);
@@ -220,7 +220,7 @@ public class RewardsTime extends JavaPlugin {
 						sender.sendMessage(field + " is set to " + config.get(field));
 					}
 				} else {
-					config.set(field, args[3]);
+					config.set(field, args[2]);
 					saveConfig();
 					loadConfigValues();
 				}
