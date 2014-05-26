@@ -18,7 +18,16 @@ public class RewardsListener implements Listener {
 		if(!plugin.mobRewards) return;
 		Player killer = event.getEntity().getKiller();
 		if(killer == null) return;
-		killer.sendMessage(event.getEntity().getType().toString());
-		plugin.economy.depositPlayer(killer, 3);
+		String entName = event.getEntity().getType().toString().toLowerCase();
+		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
+		if(amount == 0) killer.sendMessage("You get nothing for killing that");
+		else if(amount > 0){
+			plugin.economy.depositPlayer(killer, amount);
+			killer.sendMessage("You recieve $" + amount);
+		}
+		else if(amount < 0){
+			killer.sendMessage("You lose $" + (-amount));
+			plugin.economy.withdrawPlayer(killer, -amount);
+		}
 	}
 }
