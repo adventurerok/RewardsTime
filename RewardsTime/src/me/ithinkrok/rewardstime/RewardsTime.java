@@ -7,6 +7,7 @@ import java.util.HashMap;
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -41,6 +42,13 @@ public class RewardsTime extends JavaPlugin {
 		STRING,
 		BONUSTYPE
 	}
+	
+	public String title = ChatColor.DARK_PURPLE + "[RewardsTime]" + ChatColor.WHITE + " ";
+	public String fieldColor = ChatColor.RED.toString();
+	public String valColor = ChatColor.BLUE.toString();
+	public String nameColor = ChatColor.GREEN.toString();
+	public String typeColor = ChatColor.GOLD.toString();
+	public String white = ChatColor.WHITE.toString();
 	
 	public boolean log = true;
 	public boolean mobRewards = true;
@@ -187,7 +195,7 @@ public class RewardsTime extends JavaPlugin {
 			} else if("reload".equalsIgnoreCase(args[0])) {
 				reloadConfig();
 				loadConfigValues();
-				sender.sendMessage("Config reloaded successfully!");
+				sender.sendMessage(title + "Config reloaded successfully!");
 				return true;
 			} else if("field".equalsIgnoreCase(args[0])){
 				if(args.length < 4) {
@@ -203,17 +211,18 @@ public class RewardsTime extends JavaPlugin {
 				String field = args[3];
 				if(!check(sender, type, name, field)) return true;
 				String str = type + "." + name.toLowerCase() + "." + field;
+				String strChat = typeColor + type + white + "." + nameColor + name.toLowerCase() + white + "." + fieldColor + field;
 				if(args.length < 5){
 					if(!config.contains(str)){
-						sender.sendMessage("No value is set for " + str);
+						sender.sendMessage(title + "No value is set for " + strChat);
 					} else {
-						sender.sendMessage(str + " is set to " + config.get(str));
+						sender.sendMessage(title + strChat + white + " is set to " + valColor + config.get(str));
 					}
 				} else {
 					Object val = getFieldValue(sender, fieldTypes.get(field), args[4]);
 					if(val == null) return true;
 					config.set(str, val);
-					sender.sendMessage(str + " set to " + val);
+					sender.sendMessage(title + strChat + white + " set to " + valColor + val);
 					saveConfig();
 					loadConfigValues();
 				}
@@ -228,13 +237,13 @@ public class RewardsTime extends JavaPlugin {
 				String field = args[1];
 				if(args.length < 3){
 					if(!config.contains(field)){
-						sender.sendMessage("No value is set for " + field);
+						sender.sendMessage(title + "No value is set for " + fieldColor + field);
 					} else {
-						sender.sendMessage(field + " is set to " + config.get(field));
+						sender.sendMessage(title + fieldColor + field + white + " is set to " + valColor + config.get(field));
 					}
 				} else {
 					config.set(field, parseObject(args[2]));
-					sender.sendMessage(field + " set to " + args[2]);
+					sender.sendMessage(title + fieldColor + field + white + " set to " + valColor + args[2]);
 					saveConfig();
 					loadConfigValues();
 				}
@@ -248,7 +257,7 @@ public class RewardsTime extends JavaPlugin {
 	public boolean check(CommandSender sender, String type, String name, String field){
 		String[] nameParts = name.split("/");
 		if(nameParts.length > 2){
-			sender.sendMessage("Only one metadata slash is allowed");
+			sender.sendMessage(title + "Only one metadata slash is allowed");
 			return true;
 		}
 		
@@ -259,7 +268,7 @@ public class RewardsTime extends JavaPlugin {
 		case "smelt":
 		case "block":
 			if(Material.getMaterial(nameParts[0].toUpperCase()) == null){
-				sender.sendMessage("Unknown item: " + nameParts[0]);
+				sender.sendMessage(title + "Unknown item: " + nameColor + nameParts[0]);
 				return false;
 			}
 			break;
@@ -269,7 +278,7 @@ public class RewardsTime extends JavaPlugin {
 				t = EntityType.valueOf(nameParts[0].toUpperCase());
 			} catch(IllegalArgumentException e){}
 			if(t == null){
-				sender.sendMessage("Unknown entity: " + nameParts[0]);
+				sender.sendMessage(title + "Unknown entity: " + nameColor + nameParts[0]);
 				return false;
 			}
 			break;
@@ -279,7 +288,7 @@ public class RewardsTime extends JavaPlugin {
 				mat = ArmorMaterial.valueOf(name.toUpperCase());
 			} catch(IllegalArgumentException e){}
 			if(mat == null){
-				sender.sendMessage("Unknown armor material: " + name);
+				sender.sendMessage(title + "Unknown armor material: " + nameColor + name);
 				return false;
 			}
 			isBonus = true;
@@ -290,23 +299,23 @@ public class RewardsTime extends JavaPlugin {
 				part = ArmorType.valueOf(name.toUpperCase());
 			} catch(IllegalArgumentException e){}
 			if(part == null){
-				sender.sendMessage("Unknown armor type: " + name);
+				sender.sendMessage(title + "Unknown armor type: " + name + name);
 				return false;
 			}
 			isBonus = true;
 			break;
 		default:
-			sender.sendMessage("Unknown type: " + type + ", types are: [craft, smelt, block, mob]");
+			sender.sendMessage(title + "Unknown type: " + typeColor + type + white + ", types are: [craft, smelt, block, mob]");
 			return false;
 		}
 		if(isBonus){
 			if(!field.equals("type") && !field.equals("bonus")){
-				sender.sendMessage("Unknown bonus field: " + field + ", fields are [type, bonus]");
+				sender.sendMessage(title + "Unknown bonus field: " + fieldColor + field + white + ", fields are [type, bonus]");
 				return false;
 			}
 		} else {
 			if(!field.equals("money")){
-				sender.sendMessage("Unknown field: " + field + ", fields are: [money]");
+				sender.sendMessage(title + "Unknown field: " + fieldColor + field + white + ", fields are: [money]");
 				return false;
 			}
 		}
