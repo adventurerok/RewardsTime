@@ -221,9 +221,11 @@ public class RewardsTime extends JavaPlugin {
 					}
 				} else {
 					config.set(field, args[2]);
+					sender.sendMessage(field + " set to " + args[2]);
 					saveConfig();
 					loadConfigValues();
 				}
+				return true;
 			}
 			return false;
 		}
