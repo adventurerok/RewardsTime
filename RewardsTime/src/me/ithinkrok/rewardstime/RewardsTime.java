@@ -7,9 +7,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class RewardsTime extends JavaPlugin {
 	
-	public static boolean log = true;
+	public boolean log = true;
 
-	public static Economy economy = null;
+	public Economy economy = null;
 	
 	
 	@Override
