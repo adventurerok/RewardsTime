@@ -18,7 +18,7 @@ public class RewardsBonus {
 	}
 	
 	public double apply(double in){
-		return apply(in, type, in);
+		return apply(in, type, amount);
 	}
 	
 	public static double apply(double in, BonusType type, double amount){

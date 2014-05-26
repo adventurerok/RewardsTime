@@ -24,8 +24,8 @@ public class RewardsListener implements Listener {
 		if(killer == null) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
-		if(amount == 0) killer.sendMessage("You get nothing for killing that");
-		else if(amount > 0){
+		double amountStart = amount;
+		if(amount > 0){
 			EntityEquipment equip = event.getEntity().getEquipment();
 			if(equip.getHelmet().getType() != Material.AIR){
 				RewardsBonus type = plugin.armorType.get(ArmorType.HELMET);
@@ -48,7 +48,8 @@ public class RewardsListener implements Listener {
 				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 			}
 			plugin.economy.depositPlayer(killer, amount);
-			killer.sendMessage("You recieve $" + amount);
+			if(amountStart == amount) killer.sendMessage("You recieve $" + amount);
+			else killer.sendMessage("You recieve $" + amountStart + " + $" + (amount - amountStart) + " bonus");
 		}
 		else if(amount < 0){
 			killer.sendMessage("You lose $" + (-amount));
