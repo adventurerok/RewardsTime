@@ -2,12 +2,14 @@ package me.ithinkrok.rewardstime;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class RewardsTime extends JavaPlugin {
 	
 	public boolean log = true;
+	public boolean mobRewards = true;
 
 	public Economy economy = null;
 	
@@ -15,6 +17,7 @@ public class RewardsTime extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		setupEconomy();
+		loadConfigValues();
 		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
 	}
 	
@@ -32,4 +35,10 @@ public class RewardsTime extends JavaPlugin {
 
         return (economy != null);
     }
+	
+	public void loadConfigValues() {
+		FileConfiguration config = getConfig();
+		mobRewards = config.getBoolean("mobrewards", true);
+		saveConfig();
+	}
 }

@@ -15,8 +15,10 @@ public class RewardsListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onKill(EntityDeathEvent event){
+		if(!plugin.mobRewards) return;
 		Player killer = event.getEntity().getKiller();
 		if(killer == null) return;
+		killer.sendMessage(event.getEntity().getType().toString());
 		plugin.economy.depositPlayer(killer, 3);
 	}
 }
