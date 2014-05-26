@@ -2,3 +2,4 @@ name: RewardsTime
 version: 0.0.1
 author: ithinkrok
 main: me.ithinkrok.rewardstime.RewardsTime
+depend: [Vault]
