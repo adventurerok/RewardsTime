@@ -25,8 +25,8 @@ public class RewardsListener implements Listener {
 	public void onKill(EntityDeathEvent event){
 		if(!plugin.mobRewards) return;
 		Player killer = event.getEntity().getKiller();
-		if(!plugin.rewardCreative && killer.getGameMode() == GameMode.CREATIVE) return;
 		if(killer == null) return;
+		if(!plugin.rewardCreative && killer.getGameMode() == GameMode.CREATIVE) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
 		double amountStart = amount;
