@@ -169,6 +169,7 @@ public class RewardsTime extends JavaPlugin {
 				sender.sendMessage("RewardsTime commands: ");
 				sender.sendMessage("- /rewardstime reload : Reloads the config");
 				sender.sendMessage("- /rewardstime field <type> <item/mob name> <field> [newvalue]");
+				sender.sendMessage("- /rewardstime config <field> [newvalue]");
 				return true;
 			} else if("reload".equalsIgnoreCase(args[0])) {
 				reloadConfig();
@@ -177,10 +178,10 @@ public class RewardsTime extends JavaPlugin {
 				return true;
 			} else if("field".equalsIgnoreCase(args[0])){
 				if(args.length < 4) {
-					sender.sendMessage("Usage: /rewardstime set <type> <name> <field> [newvalue]");
-					sender.sendMessage(" - <type>: The type of reward to set (craft/smelt/block/mob)");
-					sender.sendMessage(" - <name>: The name of the reward to set (item/mob name)");
-					sender.sendMessage(" - <field>: The field to set (use \"money\" to set the money reward)");
+					sender.sendMessage("Usage: /rewardstime field <type> <name> <field> [newvalue]");
+					sender.sendMessage(" - <type>: The type of reward to get/set (craft/smelt/block/mob)");
+					sender.sendMessage(" - <name>: The name of the reward to get/set (item/mob name)");
+					sender.sendMessage(" - <field>: The field to get/set (use \"money\" to get/set the money reward)");
 					sender.sendMessage(" - [newvalue]: The new value to set the field to");
 					return true;
 				}
@@ -201,8 +202,28 @@ public class RewardsTime extends JavaPlugin {
 					config.set(str, val);
 					sender.sendMessage(str + " set to " + val);
 					saveConfig();
+					loadConfigValues();
 				}
 				return true;
+			} else if("config".equalsIgnoreCase(args[0])){
+				if(args.length < 2){
+					sender.sendMessage("Usage: /rewardstime config <field> [newvalue]");
+					sender.sendMessage(" - <field>: The field to get/set");
+					sender.sendMessage(" - [newvalue]: The value to set the field to");
+					return true;
+				}
+				String field = args[2];
+				if(args.length < 3){
+					if(!config.contains(field)){
+						sender.sendMessage("No value is set for " + field);
+					} else {
+						sender.sendMessage(field + " is set to " + config.get(field));
+					}
+				} else {
+					config.set(field, args[3]);
+					saveConfig();
+					loadConfigValues();
+				}
 			}
 			return false;
 		}
