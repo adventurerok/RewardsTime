@@ -161,6 +161,19 @@ public class RewardsTime extends JavaPlugin {
 		armorType.put(ArmorType.OTHER, loadBonus("mobarmor.type.other"));
 	}
 	
+	public Object parseObject(String str){
+		if(str.equalsIgnoreCase("true") || str.equalsIgnoreCase("false")){
+			return Boolean.parseBoolean(str);
+		}
+		try{
+			return Integer.parseInt(str);
+		} catch(NumberFormatException e){}
+		try{
+			return Double.parseDouble(str);
+		} catch(NumberFormatException e){}
+		return str;
+	}
+	
 	@Override
 	public boolean onCommand(CommandSender sender, Command command,
 			String label, String[] args) {
@@ -220,7 +233,7 @@ public class RewardsTime extends JavaPlugin {
 						sender.sendMessage(field + " is set to " + config.get(field));
 					}
 				} else {
-					config.set(field, args[2]);
+					config.set(field, parseObject(args[2]));
 					sender.sendMessage(field + " set to " + args[2]);
 					saveConfig();
 					loadConfigValues();
