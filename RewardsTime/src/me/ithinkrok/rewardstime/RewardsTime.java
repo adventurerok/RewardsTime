@@ -15,13 +15,12 @@ public class RewardsTime extends JavaPlugin {
 	@Override
 	public void onEnable() {
 		setupEconomy();
-		if(log) getLogger().info("Loaded plugin RewardsTime version: " + getDescription().getVersion());
+		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
 	}
 	
 	@Override
 	public void onDisable() {
 		economy = null;
-		if(log) getLogger().info("Unloaded RewardsTime");
 	}
 	
 	private boolean setupEconomy()
