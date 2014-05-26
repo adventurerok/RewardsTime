@@ -18,7 +18,10 @@ mobarmor:
             bonus: 3
         leather:
             type: multiply
-            bonus: 3
+            bonus: 1
+        chainmail:
+            type: multiply
+            bonus: 2
     type:
         helmet:
             type: add
