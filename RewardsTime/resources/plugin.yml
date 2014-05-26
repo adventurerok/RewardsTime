@@ -3,6 +3,7 @@ version: "0.0.1"
 author: "ithinkrok"
 main: me.ithinkrok.rewardstime.RewardsTime
 depend: [Vault]
+softdepend: [Votifier]
 description: "A plugin for getting rewards from mobs/blocks/crafting/voting"
 commands:
     rewardstime:

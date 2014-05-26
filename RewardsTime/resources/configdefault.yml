@@ -27,6 +27,8 @@ rewardtime: 300
 #Number of seconds to wait after entity is damaged before resetting its damage table
 damagetimeout: 60
 
+#Number of minutes to wait between auto saving vote counts
+votesaveminutes: 15
 
 #Crafting rewards
 # Format - 
@@ -48,6 +50,19 @@ block:
     diamond_ore:
         money: 10
 
+
+#Rewards for voting
+#Note: "every" cannot go higher than 1000. "achieve" can however
+#Note: You will only recieve the reward from the highest you have won in the "every" list
+votes:
+    every:
+        1:
+            money: 500
+            broadcast: "<player> has voted and recieved $<money>"
+    achieve:
+        '1':
+            money: 1000
+            broadcast: "<player> has voted for the first time and recieved $<money>"
 
 # Default mobarmor bonuses
 # Type can be:

@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 import me.ithinkrok.rewardstime.vault.IVaultEconomy;
 import me.ithinkrok.rewardstime.vault.VaultEconomy;
+import me.ithinkrok.rewardstime.votifier.VotifierApi;
 
 import org.bukkit.*;
 import org.bukkit.command.Command;
@@ -42,10 +43,15 @@ public class RewardsTime extends JavaPlugin {
 	public boolean scheduled = false;
 	public int scheduleTime = 300;
 	public int damageTimeout = 60;
+	public int voteSaveMinutes = 15;
 
 	public HashMap<UUID, RewardsData> fiveChange = new HashMap<>();
 	
 	public HashMap<UUID, DamageData> entityDamageData = new HashMap<>();
+	
+	public HashMap<UUID, Integer> voteCounts = new HashMap<>();
+	
+	public ArrayList<Integer> voteEveryList = new ArrayList<>();
 
 	public boolean log = true;
 	public boolean mobRewards = true;
@@ -93,6 +99,9 @@ public class RewardsTime extends JavaPlugin {
 		if(Bukkit.getPluginManager().isPluginEnabled("Vault")){
 			vaultApi = new VaultEconomy();
 		}
+		if(Bukkit.getPluginManager().isPluginEnabled("Votifier")){
+			new VotifierApi().createListener(this);
+		}
 		loadConfigValues();
 		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -103,6 +112,15 @@ public class RewardsTime extends JavaPlugin {
 				
 			}
 		}, damageTimeout * 20, damageTimeout * 20);
+		
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			
+			@Override
+			public void run() {
+				saveVoteCounts();
+				
+			}
+		}, voteSaveMinutes * 1200, voteSaveMinutes * 1200);
 	}
 	
 	public void checkDamageTimeout(){
@@ -191,6 +209,7 @@ public class RewardsTime extends JavaPlugin {
 
 		scheduleTime = config.getInt("rewardtime", 500);
 		damageTimeout = config.getInt("damagetimeout", 60);
+		voteSaveMinutes = config.getInt("votesaveminutes", 15);
 	}
 
 	public Object parseObject(String str) {
@@ -471,6 +490,18 @@ public class RewardsTime extends JavaPlugin {
 			return ArmorMaterial.OTHER;
 		}
 	}
+	
+	public void incrementVoteCount(UUID voter){
+		Integer count = voteCounts.get(voter);
+		if(count == null) count = 0;
+		voteCounts.put(voter, count++);
+	}
+	
+	public int getVotes(UUID voter){
+		Integer count = voteCounts.get(voter);
+		if(count == null) count = 0;
+		return count;
+	}
 
 	public ArmorType getArmorType(Material mat) {
 		switch (mat) {
@@ -500,6 +531,44 @@ public class RewardsTime extends JavaPlugin {
 			return ArmorType.BOOTS;
 		default:
 			return ArmorType.OTHER;
+		}
+	}
+	
+	public void saveVoteCounts(){
+		int num = voteCounts.size();
+		File file = new File(getDataFolder(), "votes.bin");
+		try{
+			DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
+			out.writeInt(num);
+			for(Entry<UUID, Integer> entry : voteCounts.entrySet()){
+				out.writeLong(entry.getKey().getMostSignificantBits());
+				out.writeLong(entry.getKey().getLeastSignificantBits());
+				out.writeInt(entry.getValue());
+			}
+			out.close();
+		} catch(IOException e){
+			getLogger().warning("Failed to save vote counts:");
+			getLogger().warning(e.getMessage());
+		}
+	}
+	
+	public void loadVoteCounts(){
+		File file = new File(getDataFolder(), "votes.bin");
+		if(!file.exists()) return;
+		try{
+			DataInputStream in = new DataInputStream(new FileInputStream(file));
+			int num = in.readInt();
+			for(int d = 0; d < num; ++d){
+				long most = in.readLong();
+				long least = in.readLong();
+				UUID id = new UUID(most, least);
+				int votes = in.readInt();
+				voteCounts.put(id, votes);
+			}
+			in.close();
+		} catch(IOException e){
+			getLogger().warning("Failed to load vote counts:");
+			getLogger().warning(e.getMessage());
 		}
 	}
 }
