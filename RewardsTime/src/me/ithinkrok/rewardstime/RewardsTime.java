@@ -10,6 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.EntityType;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -117,11 +118,66 @@ public class RewardsTime extends JavaPlugin {
 			if(args.length < 1){
 				sender.sendMessage("RewardsTime commands: ");
 				sender.sendMessage("- /rewardstime reload : Reloads the config");
+				sender.sendMessage("- /rewardstime set <type> <item/mob name> <field> <value>");
 				return true;
 			} else if("reload".equalsIgnoreCase(args[0])) {
 				reloadConfig();
 				loadConfigValues();
 				sender.sendMessage("Config reloaded successfully!");
+				return true;
+			} else if("set".equalsIgnoreCase(args[0])){
+				if(args.length < 5) {
+					sender.sendMessage("Usage: /rewardstime set <type> <name> <field> <value>");
+					sender.sendMessage(" - <type>: The type of reward to set (craft/smelt/block/mob)");
+					sender.sendMessage(" - <name>: The name of the reward to set (item/mob name)");
+					sender.sendMessage(" - <field>: The field to set (use \"money\" to set the money reward)");
+					sender.sendMessage(" - <value>: The new value to set the field to (number from -Infinity to +Infinity)");
+					return true;
+				}
+				String type = args[1];
+				String name = args[2];
+				String field = args[3];
+				double val = 0;
+				try {
+					val = Double.parseDouble(args[4]);
+				} catch(NumberFormatException e){
+					sender.sendMessage("<value> must be a number");
+					return true;
+				}
+				String[] nameParts = name.split("/");
+				if(nameParts.length > 2){
+					sender.sendMessage("Only one metadata slash is allowed");
+					return true;
+				}
+				switch(type) {
+				case "craft":
+				case "smelt":
+				case "block":
+					if(Material.getMaterial(nameParts[0].toUpperCase()) == null){
+						sender.sendMessage("Unknown item: " + nameParts[0]);
+						return true;
+					}
+					break;
+				case "mob":
+					EntityType t = null;
+					try{
+						t = EntityType.valueOf(nameParts[0].toUpperCase());
+					} catch(IllegalArgumentException e){}
+					if(t == null){
+						sender.sendMessage("Unknown entity: " + nameParts[0]);
+						return true;
+					}
+					break;
+				default:
+					sender.sendMessage("Unknown type: " + type + ", types are: [craft, smelt, block, mob]");
+					return true;
+				}
+				if(!field.equals("money")){
+					sender.sendMessage("Unknown field: " + field + ", fields are: [money]");
+					return true;
+				}
+				config.set(type + "." + name.toLowerCase() + "." + field, val);
+				saveConfig();
 				return true;
 			}
 			return false;

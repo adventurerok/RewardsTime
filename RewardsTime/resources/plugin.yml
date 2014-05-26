@@ -8,7 +8,7 @@ commands:
     rewardstime:
         description: Useful plugin commands
         permission: rewardstime.command
-        usage: "Type /rewardstime to see options"
+        usage: "Unexpected arguments. Type /rewardstime to see options"
 permissions:
     rewardstime.*:
         default: op
