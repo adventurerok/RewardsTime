@@ -4,7 +4,8 @@ public class RewardsBonus {
 
 	public static enum BonusType {
 		MULTIPLY,
-		ADD
+		ADD,
+		NONE
 	}
 	
 	public BonusType type;
@@ -17,6 +18,10 @@ public class RewardsBonus {
 	}
 	
 	public double apply(double in){
+		return apply(in, type, in);
+	}
+	
+	public static double apply(double in, BonusType type, double amount){
 		switch(type){
 		case MULTIPLY:
 			return in * amount;

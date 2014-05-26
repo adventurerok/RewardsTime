@@ -1,5 +1,7 @@
 package me.ithinkrok.rewardstime;
 
+import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
+
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -25,16 +27,24 @@ public class RewardsListener implements Listener {
 		else if(amount > 0){
 			EntityEquipment equip = event.getEntity().getEquipment();
 			if(equip.getHelmet() != null){
-				double amt = plugin.config.getDouble("mobarmor.type.helmet.bonus", 0);
-				String hName = equip.getHelmet().getType().toString();
-				hName = hName.replace("_HELMET", "").toLowerCase();
-				double mat = plugin.config.getDouble("mobarmor.material." + hName + ".bonus", 0);
-				String type = plugin.config.getString("mobarmor.material." + hName + ".type", "multiply");
-				if(type.equals("multiply")) amt *= mat;
-				else if(type.equals("add")) amt += mat;
-				type = plugin.config.getString("mobarmor.type.helmet.type", "add");
-				if(type.equals("multiply")) amount *= amt;
-				else if(type.equals("add")) amount += amt;
+				RewardsBonus type = plugin.armorType.get(ArmorType.HELMET);
+				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getHelmet().getType()));
+				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
+			}
+			if(equip.getChestplate() != null){
+				RewardsBonus type = plugin.armorType.get(ArmorType.CHESTPLATE);
+				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getChestplate().getType()));
+				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
+			}
+			if(equip.getLeggings() != null){
+				RewardsBonus type = plugin.armorType.get(ArmorType.LEGGINGS);
+				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getLeggings().getType()));
+				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
+			}
+			if(equip.getBoots() != null){
+				RewardsBonus type = plugin.armorType.get(ArmorType.BOOTS);
+				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getBoots().getType()));
+				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 			}
 			plugin.economy.depositPlayer(killer, amount);
 			killer.sendMessage("You recieve $" + amount);
