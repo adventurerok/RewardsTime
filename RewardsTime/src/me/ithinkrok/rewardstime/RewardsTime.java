@@ -38,6 +38,7 @@ public class RewardsTime extends JavaPlugin {
 	public boolean mobArmorBonus = true;
 	public boolean blockRewards = true;
 	public boolean voteRewards = true;
+	public boolean rewardCreative = false;
 	public FileConfiguration config;
 
 	public Economy economy = null;
@@ -79,6 +80,7 @@ public class RewardsTime extends JavaPlugin {
 		blockRewards = config.getBoolean("blockrewards", true);
 		voteRewards = config.getBoolean("voterewards", true);
 		mobArmorBonus = config.getBoolean("mobarmorbonus", true);
+		rewardCreative = config.getBoolean("rewardcreative", false);
 		armorMaterial.put(ArmorMaterial.DIAMOND, loadBonus("mobarmor.material.diamond"));
 		armorMaterial.put(ArmorMaterial.IRON, loadBonus("mobarmor.material.iron"));
 		armorMaterial.put(ArmorMaterial.GOLD, loadBonus("mobarmor.material.gold"));

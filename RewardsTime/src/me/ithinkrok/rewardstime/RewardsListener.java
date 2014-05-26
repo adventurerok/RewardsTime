@@ -2,6 +2,7 @@ package me.ithinkrok.rewardstime;
 
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -24,6 +25,7 @@ public class RewardsListener implements Listener {
 	public void onKill(EntityDeathEvent event){
 		if(!plugin.mobRewards) return;
 		Player killer = event.getEntity().getKiller();
+		if(!plugin.rewardCreative && killer.getGameMode() == GameMode.CREATIVE) return;
 		if(killer == null) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
@@ -68,6 +70,7 @@ public class RewardsListener implements Listener {
 		if(!(event.getWhoClicked() instanceof Player)) return;
 		String item = event.getCurrentItem().getType().toString().toLowerCase();
 		Player player = (Player) event.getWhoClicked();
+		if(!plugin.rewardCreative && player.getGameMode() == GameMode.CREATIVE) return;
 		double amount = plugin.config.getDouble("craft." + item + ".money", 0);
 		String withMeta = "craft." + item + "/" + event.getCurrentItem().getDurability() +".money";
 		if(plugin.config.contains(withMeta)){
@@ -89,6 +92,7 @@ public class RewardsListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onSmeltItem(FurnaceExtractEvent event){
 		if(!plugin.smeltRewards) return;
+		if(!plugin.rewardCreative && event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 		String item = event.getItemType().toString().toLowerCase();
 		Player player = event.getPlayer();
 		double amount = plugin.config.getDouble("smelt." + item + ".money", 0);
@@ -112,6 +116,7 @@ public class RewardsListener implements Listener {
 	public void onMineBlock(BlockBreakEvent event){
 		if(!plugin.blockRewards) return;
 		if(event.getPlayer() == null) return;
+		if(!plugin.rewardCreative && event.getPlayer().getGameMode() == GameMode.CREATIVE) return;
 		String item = event.getBlock().getType().toString().toLowerCase();
 		int data = event.getBlock().getData();
 		double amount = plugin.config.getDouble("block." + item + ".money", 0);

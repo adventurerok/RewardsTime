@@ -6,6 +6,7 @@ craftrewards: true
 smeltrewards: true
 voterewards: true
 
+rewardcreative: false
 mobarmorbonus: true
 
 craft:
