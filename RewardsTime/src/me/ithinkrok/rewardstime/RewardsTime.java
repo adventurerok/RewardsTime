@@ -12,12 +12,16 @@ public class RewardsTime extends JavaPlugin {
 	
 	public boolean log = true;
 	public boolean mobRewards = true;
+	public FileConfiguration config;
 
 	public Economy economy = null;
 	
 	
 	@Override
 	public void onEnable() {
+		config = getConfig();
+		config.options().copyDefaults(true);
+		saveConfig();
 		setupEconomy();
 		loadConfigValues();
 		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
@@ -39,11 +43,8 @@ public class RewardsTime extends JavaPlugin {
     }
 	
 	public void loadConfigValues() {
-		FileConfiguration config = getConfig();
-		getLogger().info(Boolean.toString(config.getBoolean("log")));
+		config = getConfig();
 		mobRewards = config.getBoolean("mobrewards", true);
-		config.options().copyDefaults(true);
-		saveConfig();
 	}
 	
 	@Override
@@ -55,6 +56,7 @@ public class RewardsTime extends JavaPlugin {
 				sender.sendMessage("- /rewardstime reload : Reloads the config");
 				return true;
 			} else if("reload".equalsIgnoreCase(args[0])) {
+				reloadConfig();
 				loadConfigValues();
 				sender.sendMessage("Config reloaded successfully!");
 				return true;
