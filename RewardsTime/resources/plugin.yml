@@ -11,8 +11,8 @@ commands:
         usage: "Type /rewardstime to see options"
 permissions:
     rewardstime.*:
-        default: false
+        default: op
         children:
             rewardstime.command: true
     rewardstime.command:
-        default: false
+        default: op
