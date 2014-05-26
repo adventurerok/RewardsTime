@@ -2,6 +2,7 @@ package me.ithinkrok.rewardstime;
 
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDeathEvent;
@@ -26,22 +27,22 @@ public class RewardsListener implements Listener {
 		if(amount == 0) killer.sendMessage("You get nothing for killing that");
 		else if(amount > 0){
 			EntityEquipment equip = event.getEntity().getEquipment();
-			if(equip.getHelmet() != null){
+			if(equip.getHelmet().getType() != Material.AIR){
 				RewardsBonus type = plugin.armorType.get(ArmorType.HELMET);
 				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getHelmet().getType()));
 				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 			}
-			if(equip.getChestplate() != null){
+			if(equip.getChestplate().getType() != Material.AIR){
 				RewardsBonus type = plugin.armorType.get(ArmorType.CHESTPLATE);
 				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getChestplate().getType()));
 				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 			}
-			if(equip.getLeggings() != null){
+			if(equip.getLeggings().getType() != Material.AIR){
 				RewardsBonus type = plugin.armorType.get(ArmorType.LEGGINGS);
 				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getLeggings().getType()));
 				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 			}
-			if(equip.getBoots() != null){
+			if(equip.getBoots().getType() != Material.AIR){
 				RewardsBonus type = plugin.armorType.get(ArmorType.BOOTS);
 				RewardsBonus material = plugin.armorMaterial.get(plugin.getArmorMaterial(equip.getBoots().getType()));
 				amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
