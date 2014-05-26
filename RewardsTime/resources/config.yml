@@ -15,6 +15,10 @@ craft:
 smelt:
     iron_ingot:
         money: 1
+        
+block:
+    diamond_ore:
+        money: 10
 
 mobarmor:
     material:

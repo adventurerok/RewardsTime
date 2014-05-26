@@ -5,6 +5,7 @@ import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
@@ -103,6 +104,28 @@ public class RewardsListener implements Listener {
 		} else if(amount < 0){
 			plugin.economy.withdrawPlayer(player, -amount);
 			player.sendMessage("You lose $" + amount + " for smelting " + item + " x " + event.getItemAmount());
+		}
+	}
+	
+	@SuppressWarnings("deprecation")
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onMineBlock(BlockBreakEvent event){
+		if(!plugin.blockRewards) return;
+		if(event.getPlayer() == null) return;
+		String item = event.getBlock().getType().toString().toLowerCase();
+		int data = event.getBlock().getData();
+		double amount = plugin.config.getDouble("block." + item + ".money", 0);
+		String withMeta = "block." + item + "/" + data + ".money";
+		if(plugin.config.contains(withMeta)){
+			amount = plugin.config.getDouble(withMeta);
+		}
+		if(amount == 0) return;
+		if(amount > 0){
+			plugin.economy.depositPlayer(event.getPlayer(), amount);
+			event.getPlayer().sendMessage("You recieve $" + amount + " for mining " + item);
+		} else if(amount < 0){
+			plugin.economy.withdrawPlayer(event.getPlayer(), -amount);
+			event.getPlayer().sendMessage("You lose $" + amount + " for mining " + item);
 		}
 	}
 }
