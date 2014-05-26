@@ -26,24 +26,29 @@ mobarmorbonus: true
 
 #Crafting rewards
 # Format - 
-# item_name:
+# item_name[/metadata]:
 #   money: reward_money
 craft:
     iron_pickaxe:
         money: 4
 
-#Smelting rewards        
+#Smelting rewards
+# Note: smelting does not support metadata        
 smelt:
     iron_ingot:
         money: 1
 
-#Block mining rewards        
+#Block mining rewards
+# Metadata is supported  
 block:
     diamond_ore:
         money: 10
 
 
 # Default mobarmor bonuses
+# Type can be:
+#   - multiply: Multiplies amount by value
+#   - add: Adds amount to value
 mobarmor:
     material:
         diamond:
@@ -79,6 +84,9 @@ mobarmor:
             bonus: 1
 
 #Rewards for killing mobs
+# Format -
+# mob_name:
+#   money: reward_money
 mob:
     creeper:
         money: 5
