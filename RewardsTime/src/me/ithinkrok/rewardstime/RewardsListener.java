@@ -1,11 +1,17 @@
 package me.ithinkrok.rewardstime;
 
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.Map.Entry;
+
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
@@ -19,15 +25,24 @@ public class RewardsListener implements Listener {
 		super();
 		this.plugin = plugin;
 	}
+	
+	@EventHandler(priority = EventPriority.MONITOR)
+	public void onDamage(EntityDamageByEntityEvent event){
+		if(!plugin.mobRewards) return;
+		if(!(event.getDamager() instanceof Player)) return;
+		Player damager = (Player) event.getDamager();
+		if(!plugin.enabledGameModes.get(damager.getGameMode())) return;
+		plugin.entityDamage(event.getEntity(), damager, event.getDamage());
+	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onKill(EntityDeathEvent event){
 		if(!plugin.mobRewards) return;
-		Player killer = event.getEntity().getKiller();
-		if(killer == null) return;
-		if(!plugin.enabledGameModes.get(killer.getGameMode())) return;
+		DamageData damages = plugin.entityDamageData.get(event.getEntity().getUniqueId());
+		if(damages == null) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
+		if(amount == 0) return;
 		double amountStart = amount;
 		if(amount > 0){
 			if(plugin.mobArmorBonus){
@@ -53,11 +68,22 @@ public class RewardsListener implements Listener {
 					amount = RewardsBonus.apply(amount, type.type, material.apply(type.amount));
 				}
 			}
-			plugin.playerReward(killer, amountStart, amount - amountStart, 0);
 		}
-		else if(amount < 0){
-			plugin.playerReward(killer, 0, 0, -amount);
+		double gain = 0;
+		double bonus = 0;
+		double loss = 0;
+		if(amountStart > 0){
+			gain = amountStart;
+			bonus = amount - amountStart;
+		} else if(amountStart < 0){
+			loss = - amountStart;
 		}
+		HashMap<UUID, Double> rewards = damages.getResult();
+		for(Entry<UUID, Double> entry : rewards.entrySet()){
+			double mult = entry.getValue();
+			plugin.playerReward(Bukkit.getOfflinePlayer(entry.getKey()), gain * mult, bonus * mult, loss * mult);
+		}
+		
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)

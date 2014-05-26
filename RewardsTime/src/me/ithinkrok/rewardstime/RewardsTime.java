@@ -11,8 +11,7 @@ import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -31,8 +30,7 @@ public class RewardsTime extends JavaPlugin {
 		BOOLEAN, INTEGER, DOUBLE, STRING, BONUSTYPE
 	}
 
-	public String title = ChatColor.DARK_PURPLE + "[RewardsTime]"
-			+ ChatColor.WHITE + " ";
+	public String title = ChatColor.DARK_PURPLE + "[RewardsTime]" + ChatColor.WHITE + " ";
 	public String fieldColor = ChatColor.RED.toString();
 	public String valColor = ChatColor.BLUE.toString();
 	public String nameColor = ChatColor.GREEN.toString();
@@ -40,9 +38,12 @@ public class RewardsTime extends JavaPlugin {
 	public String white = ChatColor.WHITE.toString();
 
 	public boolean scheduled = false;
-	public int scheduleTime = 3;
+	public int scheduleTime = 300;
+	public int damageTimeout = 60;
 
 	public HashMap<UUID, RewardsData> fiveChange = new HashMap<>();
+	
+	public HashMap<UUID, DamageData> entityDamageData = new HashMap<>();
 
 	public boolean log = true;
 	public boolean mobRewards = true;
@@ -53,15 +54,13 @@ public class RewardsTime extends JavaPlugin {
 	public boolean voteRewards = true;
 	public boolean rewardCreative = false;
 	public FileConfiguration config;
-	
+
 	public EnumMap<GameMode, Boolean> enabledGameModes = new EnumMap<>(GameMode.class);
 
 	public Economy economy = null;
 
-	public EnumMap<ArmorMaterial, RewardsBonus> armorMaterial = new EnumMap<>(
-			ArmorMaterial.class);
-	public EnumMap<ArmorType, RewardsBonus> armorType = new EnumMap<>(
-			ArmorType.class);
+	public EnumMap<ArmorMaterial, RewardsBonus> armorMaterial = new EnumMap<>(ArmorMaterial.class);
+	public EnumMap<ArmorType, RewardsBonus> armorType = new EnumMap<>(ArmorType.class);
 
 	public HashMap<String, FieldType> fieldTypes = new HashMap<>();
 
@@ -74,8 +73,7 @@ public class RewardsTime extends JavaPlugin {
 		if (!conFile.exists()) { // Cannot use bukkit default config feature as
 									// causes unintended side effects
 			try {
-				InputStream in = RewardsTime.class.getClassLoader()
-						.getResourceAsStream("configdefault.yml");
+				InputStream in = RewardsTime.class.getClassLoader().getResourceAsStream("configdefault.yml");
 				FileOutputStream out = new FileOutputStream(conFile);
 				int b = -1;
 				while ((b = in.read()) != -1) {
@@ -92,8 +90,29 @@ public class RewardsTime extends JavaPlugin {
 		}
 		setupEconomy();
 		loadConfigValues();
-		getServer().getPluginManager().registerEvents(
-				new RewardsListener(this), this);
+		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
+		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
+			
+			@Override
+			public void run() {
+				checkDamageTimeout();
+				
+			}
+		}, damageTimeout * 20, damageTimeout * 20);
+	}
+	
+	public void checkDamageTimeout(){
+		long time = System.nanoTime();
+		HashMap<UUID, DamageData> result = new HashMap<>();
+		for(Entry<UUID, DamageData> entry : entityDamageData.entrySet()){
+			double diff = time - entry.getValue().lastDamage;
+			diff /= 1_000_000_000d;
+			if(diff <= damageTimeout){
+				result.put(entry.getKey(), entry.getValue());
+			}
+		}
+		entityDamageData.clear();
+		entityDamageData = result;
 	}
 
 	@Override
@@ -102,9 +121,8 @@ public class RewardsTime extends JavaPlugin {
 	}
 
 	private boolean setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer()
-				.getServicesManager().getRegistration(
-						net.milkbowl.vault.economy.Economy.class);
+		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(
+				net.milkbowl.vault.economy.Economy.class);
 		if (economyProvider != null) {
 			economy = economyProvider.getProvider();
 		}
@@ -112,8 +130,7 @@ public class RewardsTime extends JavaPlugin {
 		return (economy != null);
 	}
 
-	public Object getFieldValue(CommandSender sender, FieldType type,
-			String parse) {
+	public Object getFieldValue(CommandSender sender, FieldType type, String parse) {
 		switch (type) {
 		case DOUBLE:
 			try {
@@ -131,8 +148,7 @@ public class RewardsTime extends JavaPlugin {
 		case STRING:
 			return parse;
 		case BOOLEAN:
-			if (!parse.equalsIgnoreCase("true")
-					&& !parse.equalsIgnoreCase("false")) {
+			if (!parse.equalsIgnoreCase("true") && !parse.equalsIgnoreCase("false")) {
 				sender.sendMessage("Field must be a boolean (true/false)");
 				return null;
 			} else
@@ -161,30 +177,24 @@ public class RewardsTime extends JavaPlugin {
 		voteRewards = config.getBoolean("rewards.vote", true);
 		mobArmorBonus = config.getBoolean("bonus.mobarmor", true);
 		rewardCreative = config.getBoolean("rewardcreative", false);
-		armorMaterial.put(ArmorMaterial.DIAMOND,
-				loadBonus("mobarmor.material.diamond"));
-		armorMaterial.put(ArmorMaterial.IRON,
-				loadBonus("mobarmor.material.iron"));
-		armorMaterial.put(ArmorMaterial.GOLD,
-				loadBonus("mobarmor.material.gold"));
-		armorMaterial.put(ArmorMaterial.LEATHER,
-				loadBonus("mobarmor.material.leather"));
-		armorMaterial.put(ArmorMaterial.CHAINMAIL,
-				loadBonus("mobarmor.material.chainmail"));
-		armorMaterial.put(ArmorMaterial.OTHER,
-				loadBonus("mobarmor.material.other"));
+		armorMaterial.put(ArmorMaterial.DIAMOND, loadBonus("mobarmor.material.diamond"));
+		armorMaterial.put(ArmorMaterial.IRON, loadBonus("mobarmor.material.iron"));
+		armorMaterial.put(ArmorMaterial.GOLD, loadBonus("mobarmor.material.gold"));
+		armorMaterial.put(ArmorMaterial.LEATHER, loadBonus("mobarmor.material.leather"));
+		armorMaterial.put(ArmorMaterial.CHAINMAIL, loadBonus("mobarmor.material.chainmail"));
+		armorMaterial.put(ArmorMaterial.OTHER, loadBonus("mobarmor.material.other"));
 		armorType.put(ArmorType.HELMET, loadBonus("mobarmor.type.helmet"));
-		armorType.put(ArmorType.CHESTPLATE,
-				loadBonus("mobarmor.type.chestplate"));
+		armorType.put(ArmorType.CHESTPLATE, loadBonus("mobarmor.type.chestplate"));
 		armorType.put(ArmorType.LEGGINGS, loadBonus("mobarmor.type.leggings"));
 		armorType.put(ArmorType.BOOTS, loadBonus("mobarmor.type.boots"));
 		armorType.put(ArmorType.OTHER, loadBonus("mobarmor.type.other"));
-		
+
 		enabledGameModes.put(GameMode.SURVIVAL, config.getBoolean("gamemodes.survival", true));
 		enabledGameModes.put(GameMode.CREATIVE, config.getBoolean("gamemodes.creative", false));
 		enabledGameModes.put(GameMode.ADVENTURE, config.getBoolean("gamemodes.adventure", true));
-		
+
 		scheduleTime = config.getInt("rewardtime", 500);
+		damageTimeout = config.getInt("damagetimeout", 60);
 	}
 
 	public Object parseObject(String str) {
@@ -202,11 +212,13 @@ public class RewardsTime extends JavaPlugin {
 		return str;
 	}
 
-	public void playerReward(Player player, double gain, double bonus,
-			double loss) {
+	public void playerReward(OfflinePlayer player, double gain, double bonus, double loss) {
 		double total = gain + bonus - loss;
-		if(total > 0) economy.depositPlayer(player, total);
-		else if(total < 0) economy.withdrawPlayer(player, -total);
+		if (total > 0)
+			economy.depositPlayer(player, total);
+		else if (total < 0)
+			economy.withdrawPlayer(player, -total);
+		if(!player.isOnline()) return;
 		RewardsData data = fiveChange.get(player.getUniqueId());
 		if (data == null) {
 			data = new RewardsData();
@@ -227,6 +239,19 @@ public class RewardsTime extends JavaPlugin {
 		}
 
 	}
+	
+	public void entityDamage(Entity entity, Player player, double amount){
+		DamageData data = entityDamageData.get(entity.getUniqueId());
+		if(data == null){
+			data = new DamageData();
+			entityDamageData.put(entity.getUniqueId(), data);
+		}
+		data.damageFrom(player.getUniqueId(), amount);
+	}
+	
+	public boolean hasEntity(Entity entity){
+		return entityDamageData.get(entity.getUniqueId()) != null;
+	}
 
 	public void alertRewards() {
 		for (Entry<UUID, RewardsData> entry : fiveChange.entrySet()) {
@@ -234,12 +259,9 @@ public class RewardsTime extends JavaPlugin {
 			if (player == null)
 				continue;
 			RewardsData data = entry.getValue();
-			String message = title + "Over the last "
-					+ timeString(scheduleTime) + ", you gained " + valColor
-					+ "$" + data.gained + white + " (+" + valColor + "$"
-					+ data.gainedBonus + white + " bonus) and lost " + valColor
-					+ "$" + data.lost + white + " (Total: " + valColor + "$"
-					+ data.getTotal() + white + ")";
+			String message = title + "Over the last " + timeString(scheduleTime) + ", you gained " + valColor + "$"
+					+ data.gained + white + " (+" + valColor + "$" + data.gainedBonus + white + " bonus) and lost "
+					+ valColor + "$" + data.lost + white + " (Total: " + valColor + "$" + data.getTotal() + white + ")";
 			player.sendMessage(message);
 		}
 		fiveChange.clear();
@@ -250,13 +272,12 @@ public class RewardsTime extends JavaPlugin {
 		if (seconds % 60 == 0) {
 			return ChatColor.RED + "" + (seconds / 60) + white + " minutes";
 		} else
-			return ChatColor.RED + "" + (seconds / 60) + white + "m"
-					+ ChatColor.RED + "" + (seconds % 60) + white + "s";
+			return ChatColor.RED + "" + (seconds / 60) + white + "m" + ChatColor.RED + "" + (seconds % 60) + white
+					+ "s";
 	}
 
 	@Override
-	public boolean onCommand(CommandSender sender, Command command,
-			String label, String[] args) {
+	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("rewardstime")) {
 			if (args.length < 1) {
 				sender.sendMessage("RewardsTime commands: ");
@@ -284,24 +305,20 @@ public class RewardsTime extends JavaPlugin {
 				if (!check(sender, type, name, field))
 					return true;
 				String str = type + "." + name.toLowerCase() + "." + field;
-				String strChat = typeColor + type + white + "." + nameColor
-						+ name.toLowerCase() + white + "." + fieldColor + field;
+				String strChat = typeColor + type + white + "." + nameColor + name.toLowerCase() + white + "."
+						+ fieldColor + field;
 				if (args.length < 5) {
 					if (!config.contains(str)) {
-						sender.sendMessage(title + "No value is set for "
-								+ strChat);
+						sender.sendMessage(title + "No value is set for " + strChat);
 					} else {
-						sender.sendMessage(title + strChat + white
-								+ " is set to " + valColor + config.get(str));
+						sender.sendMessage(title + strChat + white + " is set to " + valColor + config.get(str));
 					}
 				} else {
-					Object val = getFieldValue(sender, fieldTypes.get(field),
-							args[4]);
+					Object val = getFieldValue(sender, fieldTypes.get(field), args[4]);
 					if (val == null)
 						return true;
 					config.set(str, val);
-					sender.sendMessage(title + strChat + white + " set to "
-							+ valColor + val);
+					sender.sendMessage(title + strChat + white + " set to " + valColor + val);
 					saveConfig();
 					loadConfigValues();
 				}
@@ -316,16 +333,14 @@ public class RewardsTime extends JavaPlugin {
 				String field = args[1];
 				if (args.length < 3) {
 					if (!config.contains(field)) {
-						sender.sendMessage(title + "No value is set for "
-								+ fieldColor + field);
+						sender.sendMessage(title + "No value is set for " + fieldColor + field);
 					} else {
-						sender.sendMessage(title + fieldColor + field + white
-								+ " is set to " + valColor + config.get(field));
+						sender.sendMessage(title + fieldColor + field + white + " is set to " + valColor
+								+ config.get(field));
 					}
 				} else {
 					config.set(field, parseObject(args[2]));
-					sender.sendMessage(title + fieldColor + field + white
-							+ " set to " + valColor + args[2]);
+					sender.sendMessage(title + fieldColor + field + white + " set to " + valColor + args[2]);
 					saveConfig();
 					loadConfigValues();
 				}
@@ -336,8 +351,7 @@ public class RewardsTime extends JavaPlugin {
 		return false;
 	}
 
-	public boolean check(CommandSender sender, String type, String name,
-			String field) {
+	public boolean check(CommandSender sender, String type, String name, String field) {
 		String[] nameParts = name.split("/");
 		if (nameParts.length > 2) {
 			sender.sendMessage(title + "Only one metadata slash is allowed");
@@ -351,8 +365,7 @@ public class RewardsTime extends JavaPlugin {
 		case "smelt":
 		case "block":
 			if (Material.getMaterial(nameParts[0].toUpperCase()) == null) {
-				sender.sendMessage(title + "Unknown item: " + nameColor
-						+ nameParts[0]);
+				sender.sendMessage(title + "Unknown item: " + nameColor + nameParts[0]);
 				return false;
 			}
 			break;
@@ -363,8 +376,7 @@ public class RewardsTime extends JavaPlugin {
 			} catch (IllegalArgumentException e) {
 			}
 			if (t == null) {
-				sender.sendMessage(title + "Unknown entity: " + nameColor
-						+ nameParts[0]);
+				sender.sendMessage(title + "Unknown entity: " + nameColor + nameParts[0]);
 				return false;
 			}
 			break;
@@ -375,8 +387,7 @@ public class RewardsTime extends JavaPlugin {
 			} catch (IllegalArgumentException e) {
 			}
 			if (mat == null) {
-				sender.sendMessage(title + "Unknown armor material: "
-						+ nameColor + name);
+				sender.sendMessage(title + "Unknown armor material: " + nameColor + name);
 				return false;
 			}
 			isBonus = true;
@@ -394,24 +405,19 @@ public class RewardsTime extends JavaPlugin {
 			isBonus = true;
 			break;
 		default:
-			sender.sendMessage(title
-					+ "Unknown type: "
-					+ typeColor
-					+ type
-					+ white
+			sender.sendMessage(title + "Unknown type: " + typeColor + type + white
 					+ ", types are: [craft, smelt, block, mob, mobarmor.material, mobarmor.type]");
 			return false;
 		}
 		if (isBonus) {
 			if (!field.equals("type") && !field.equals("bonus")) {
-				sender.sendMessage(title + "Unknown bonus field: " + fieldColor
-						+ field + white + ", fields are [type, bonus]");
+				sender.sendMessage(title + "Unknown bonus field: " + fieldColor + field + white
+						+ ", fields are [type, bonus]");
 				return false;
 			}
 		} else {
 			if (!field.equals("money")) {
-				sender.sendMessage(title + "Unknown field: " + fieldColor
-						+ field + white + ", fields are: [money]");
+				sender.sendMessage(title + "Unknown field: " + fieldColor + field + white + ", fields are: [money]");
 				return false;
 			}
 		}

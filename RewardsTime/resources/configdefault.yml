@@ -24,6 +24,9 @@ gamemodes:
 #Number of seconds to wait before notifying players of their gains    
 rewardtime: 300
 
+#Number of seconds to wait after entity is damaged before resetting its damage table
+damagetimeout: 60
+
 
 #Crafting rewards
 # Format - 
