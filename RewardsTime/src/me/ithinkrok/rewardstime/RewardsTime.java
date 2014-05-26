@@ -5,14 +5,14 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
-import net.milkbowl.vault.economy.Economy;
+import me.ithinkrok.rewardstime.vault.IVaultEconomy;
+import me.ithinkrok.rewardstime.vault.VaultEconomy;
 
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -29,6 +29,8 @@ public class RewardsTime extends JavaPlugin {
 	public static enum FieldType {
 		BOOLEAN, INTEGER, DOUBLE, STRING, BONUSTYPE
 	}
+	
+	public IVaultEconomy vaultApi = null;
 
 	public String title = ChatColor.DARK_PURPLE + "[RewardsTime]" + ChatColor.WHITE + " ";
 	public String fieldColor = ChatColor.RED.toString();
@@ -57,7 +59,7 @@ public class RewardsTime extends JavaPlugin {
 
 	public EnumMap<GameMode, Boolean> enabledGameModes = new EnumMap<>(GameMode.class);
 
-	public Economy economy = null;
+	
 
 	public EnumMap<ArmorMaterial, RewardsBonus> armorMaterial = new EnumMap<>(ArmorMaterial.class);
 	public EnumMap<ArmorType, RewardsBonus> armorType = new EnumMap<>(ArmorType.class);
@@ -88,7 +90,9 @@ public class RewardsTime extends JavaPlugin {
 			}
 			reloadConfig();
 		}
-		setupEconomy();
+		if(Bukkit.getPluginManager().isPluginEnabled("Vault")){
+			vaultApi = new VaultEconomy();
+		}
 		loadConfigValues();
 		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -117,18 +121,10 @@ public class RewardsTime extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
-		economy = null;
+		if(vaultApi != null) vaultApi.disable();
 	}
 
-	private boolean setupEconomy() {
-		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(
-				net.milkbowl.vault.economy.Economy.class);
-		if (economyProvider != null) {
-			economy = economyProvider.getProvider();
-		}
-
-		return (economy != null);
-	}
+	
 
 	public Object getFieldValue(CommandSender sender, FieldType type, String parse) {
 		switch (type) {
@@ -213,11 +209,12 @@ public class RewardsTime extends JavaPlugin {
 	}
 
 	public void playerReward(OfflinePlayer player, double gain, double bonus, double loss) {
+		if(vaultApi == null) return;
 		double total = gain + bonus - loss;
 		if (total > 0)
-			economy.depositPlayer(player, total);
+			economyDeposit(player, total);
 		else if (total < 0)
-			economy.withdrawPlayer(player, -total);
+			economyWithdraw(player, -total);
 		if(!player.isOnline()) return;
 		RewardsData data = fiveChange.get(player.getUniqueId());
 		if (data == null) {
@@ -422,6 +419,14 @@ public class RewardsTime extends JavaPlugin {
 			}
 		}
 		return true;
+	}
+	
+	public void economyWithdraw(OfflinePlayer player, double amount){
+		if(vaultApi != null) vaultApi.withdraw(player, amount);
+	}
+	
+	public void economyDeposit(OfflinePlayer player, double amount){
+		if(vaultApi != null) vaultApi.deposit(player, amount);
 	}
 
 	public RewardsBonus loadBonus(String base) {
