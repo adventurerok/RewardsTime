@@ -49,7 +49,18 @@ public class RewardsTime extends JavaPlugin {
 	@Override
 	public boolean onCommand(CommandSender sender, Command command,
 			String label, String[] args) {
-		// TODO Auto-generated method stub
-		return super.onCommand(sender, command, label, args);
+		if(command.getName().equalsIgnoreCase("rewardstime")){
+			if(args.length < 1){
+				sender.sendMessage("RewardsTime commands: ");
+				sender.sendMessage("- /rewardstime reload : Reloads the config");
+				return true;
+			} else if("reload".equalsIgnoreCase(args[0])) {
+				loadConfigValues();
+				sender.sendMessage("Config reloaded successfully!");
+				return true;
+			}
+			return false;
+		}
+		return false;
 	}
 }
