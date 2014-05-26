@@ -2,6 +2,8 @@ package me.ithinkrok.rewardstime;
 
 import net.milkbowl.vault.economy.Economy;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -38,7 +40,16 @@ public class RewardsTime extends JavaPlugin {
 	
 	public void loadConfigValues() {
 		FileConfiguration config = getConfig();
+		getLogger().info(Boolean.toString(config.getBoolean("log")));
 		mobRewards = config.getBoolean("mobrewards", true);
+		config.options().copyDefaults(true);
 		saveConfig();
+	}
+	
+	@Override
+	public boolean onCommand(CommandSender sender, Command command,
+			String label, String[] args) {
+		// TODO Auto-generated method stub
+		return super.onCommand(sender, command, label, args);
 	}
 }
