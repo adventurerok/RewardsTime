@@ -1,5 +1,6 @@
 package me.ithinkrok.rewardstime;
 
+import java.io.*;
 import java.util.EnumMap;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
@@ -49,9 +50,24 @@ public class RewardsTime extends JavaPlugin {
 	
 	@Override
 	public void onEnable() {
-		config = getConfig();
-		config.options().copyDefaults(true);
-		saveConfig();
+		File conFile = new File(getDataFolder(), "config.yml");
+		if(!conFile.exists()){ //Cannot use bukkit default config feature as causes unintended side effects
+			try{
+				InputStream in = RewardsTime.class.getClassLoader().getResourceAsStream("configdefault.yml");
+				FileOutputStream out = new FileOutputStream(conFile);
+				int b = -1;
+				while((b = in.read()) != -1){
+					out.write(b);
+				}
+				in.close();
+				out.close();
+				getLogger().info("Created default config");
+			} catch(IOException e){
+				getLogger().warning("Failed to copy default config");
+				getLogger().warning(e.getMessage());
+			}
+			reloadConfig();
+		}
 		setupEconomy();
 		loadConfigValues();
 		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
