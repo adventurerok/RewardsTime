@@ -1,0 +1,96 @@
+log: true
+mobrewards: true
+blockrewards: true
+craftrewards: true
+voterewards: true
+
+
+mobarmor:
+    material:
+        diamond:
+            type: multiply
+            bonus: 4
+        gold:
+            type: multiply
+            bonus: 3
+        iron:
+            type: multiply
+            bonus: 3
+        leather:
+            type: multiply
+            bonus: 3
+    type:
+        helmet:
+            type: add
+            bonus: 1
+        chestplate:
+            type: add
+            bonus: 3
+        leggings:
+            type: add
+            bonus: 2
+        boots:
+            type: add
+            bonus: 1
+
+mob:
+    creeper:
+        money: 5
+    zombie:
+        money: 2
+    chicken:
+        money: 1
+    skeleton:
+        money: 5
+    spider:
+        money: 3
+    giant:
+        money: 25
+    slime:
+        money: 1
+    ghast:
+        money: 20
+    pig:
+        money: 1
+    pig_zombie:
+        money: 4
+    enderman:
+        money: 8
+    cave_spider:
+        money: 5
+    silverfish:
+        money: 3
+    blaze:
+        money: 5
+    magma_cube:
+        money: 5
+    ender_dragon:
+        money: 250
+    wither:
+        money: 150
+    bat:
+        money: 1
+    witch:
+        money: 15
+    sheep:
+        money: 1
+    cow:
+        money: 1
+    squid:
+        money: 1
+    wolf:
+        money: 3
+    mushroom_cow:
+        money: 3
+    snowman:
+        money: 0
+    ocelot:
+        money: 1
+    iron_golem:
+        money: 10
+    horse:
+        money: 2
+    villager:
+        money: 0
+    ender_crystal:
+        money: 3
