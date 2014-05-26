@@ -72,13 +72,16 @@ public class RewardsListener implements Listener {
 		if(plugin.config.contains(withMeta)){
 			amount = plugin.config.getDouble(withMeta);
 		}
-		if(amount == 0) return;
+		amount *= event.getCurrentItem().getAmount();
+		if(amount == 0){
+			return;
+		}
 		if(amount > 0){
 			plugin.economy.depositPlayer(player, amount);
-			player.sendMessage("You recieve $" + amount + " for crafting " + item);
+			player.sendMessage("You recieve $" + amount + " for crafting " + item + " x " + event.getCurrentItem().getAmount());
 		} else if(amount < 0){
 			plugin.economy.withdrawPlayer(player, -amount);
-			player.sendMessage("You lose $" + amount + " for crafting " + item);
+			player.sendMessage("You lose $" + amount + " for crafting " + item + " x " + event.getCurrentItem().getAmount());
 		}
 	}
 	
@@ -92,13 +95,14 @@ public class RewardsListener implements Listener {
 //		if(plugin.config.contains(withMeta)){
 //			amount = plugin.config.getDouble(withMeta);
 //		}
+		amount *= event.getItemAmount();
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.economy.depositPlayer(player, amount);
-			player.sendMessage("You recieve $" + amount + " for smelting " + item);
+			player.sendMessage("You recieve $" + amount + " for smelting " + item + " x " + event.getItemAmount());
 		} else if(amount < 0){
 			plugin.economy.withdrawPlayer(player, -amount);
-			player.sendMessage("You lose $" + amount + " for smelting " + item);
+			player.sendMessage("You lose $" + amount + " for smelting " + item + " x " + event.getItemAmount());
 		}
 	}
 }
