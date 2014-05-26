@@ -4,3 +4,15 @@ author: "ithinkrok"
 main: me.ithinkrok.rewardstime.RewardsTime
 depend: [Vault]
 description: "A plugin for getting rewards from mobs/blocks/crafting/voting"
+commands:
+    rewardstime:
+        description: Useful plugin commands
+        permission: rewardstime.command
+        usage: "Type /rewardstime to see options"
+permissions:
+    rewardstime.*:
+        default: false
+        children:
+            rewardstime.command: true
+    rewardstime.command:
+        default: false
