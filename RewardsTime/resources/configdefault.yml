@@ -130,9 +130,11 @@ tool:
 # Format -
 # mob_name:
 #   money: reward_money
+#   drops: item_name/[metadata]/maxdrops/changeperdrop%,item_name/[metadata]/maxdrops/chanceperdrop%,...
 mob:
     creeper:
         money: 5
+        drops: diamond_sword//2/10,
     zombie:
         money: 2
     chicken:
@@ -162,9 +164,9 @@ mob:
     magma_cube:
         money: 5
     ender_dragon:
-        money: 250
+        money: 2500
     wither:
-        money: 150
+        money: 1500
     bat:
         money: 1
     witch:
@@ -188,6 +190,6 @@ mob:
     horse:
         money: 2
     villager:
-        money: 0
+        money: -1
     ender_crystal:
         money: 3

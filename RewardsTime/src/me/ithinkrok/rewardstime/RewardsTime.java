@@ -1,10 +1,12 @@
 package me.ithinkrok.rewardstime;
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
+import me.ithinkrok.rewardstime.listener.*;
 import me.ithinkrok.rewardstime.vault.IVaultEconomy;
 import me.ithinkrok.rewardstime.vault.VaultEconomy;
 import me.ithinkrok.rewardstime.votifier.VotifierApi;
@@ -32,8 +34,10 @@ public class RewardsTime extends JavaPlugin {
 	public static enum FieldType {
 		BOOLEAN, INTEGER, DOUBLE, STRING, BONUSTYPE
 	}
-	
+
 	public IVaultEconomy vaultApi = null;
+
+	public DecimalFormat numberFormat = new DecimalFormat("0.##");
 
 	public String title = ChatColor.DARK_PURPLE + "[RewardsTime]" + ChatColor.WHITE + " ";
 	public String fieldColor = ChatColor.RED.toString();
@@ -48,11 +52,11 @@ public class RewardsTime extends JavaPlugin {
 	public int voteSaveMinutes = 15;
 
 	public HashMap<UUID, RewardsData> fiveChange = new HashMap<>();
-	
+
 	public HashMap<UUID, DamageData> entityDamageData = new HashMap<>();
-	
+
 	public HashMap<UUID, Integer> voteCounts = new HashMap<>();
-	
+
 	public ArrayList<Integer> voteEveryList = new ArrayList<>();
 
 	public boolean log = true;
@@ -67,8 +71,6 @@ public class RewardsTime extends JavaPlugin {
 	public FileConfiguration config;
 
 	public EnumMap<GameMode, Boolean> enabledGameModes = new EnumMap<>(GameMode.class);
-
-	
 
 	public EnumMap<ArmorMaterial, RewardsBonus> armorMaterial = new EnumMap<>(ArmorMaterial.class);
 	public EnumMap<ArmorType, RewardsBonus> armorType = new EnumMap<>(ArmorType.class);
@@ -101,40 +103,45 @@ public class RewardsTime extends JavaPlugin {
 			}
 			reloadConfig();
 		}
-		if(Bukkit.getPluginManager().isPluginEnabled("Vault")){
+		loadConfigValues();
+		
+		getServer().getPluginManager().registerEvents(new MineListener(this), this);
+		getServer().getPluginManager().registerEvents(new CraftListener(this), this);
+		getServer().getPluginManager().registerEvents(new MobListener(this), this);
+		
+		if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
 			vaultApi = new VaultEconomy();
 		}
-		if(Bukkit.getPluginManager().isPluginEnabled("Votifier")){
+		if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
 			new VotifierApi().createListener(this);
 		}
-		loadConfigValues();
-		getServer().getPluginManager().registerEvents(new RewardsListener(this), this);
+		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			
+
 			@Override
 			public void run() {
 				checkDamageTimeout();
-				
+
 			}
 		}, damageTimeout * 20, damageTimeout * 20);
-		
+
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-			
+
 			@Override
 			public void run() {
 				saveVoteCounts();
-				
+
 			}
 		}, voteSaveMinutes * 1200, voteSaveMinutes * 1200);
 	}
-	
-	public void checkDamageTimeout(){
+
+	public void checkDamageTimeout() {
 		long time = System.nanoTime();
 		HashMap<UUID, DamageData> result = new HashMap<>();
-		for(Entry<UUID, DamageData> entry : entityDamageData.entrySet()){
+		for (Entry<UUID, DamageData> entry : entityDamageData.entrySet()) {
 			double diff = time - entry.getValue().lastDamage;
 			diff /= 1_000_000_000d;
-			if(diff <= damageTimeout){
+			if (diff <= damageTimeout) {
 				result.put(entry.getKey(), entry.getValue());
 			}
 		}
@@ -145,10 +152,9 @@ public class RewardsTime extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		saveVoteCounts();
-		if(vaultApi != null) vaultApi.disable();
+		if (vaultApi != null)
+			vaultApi.disable();
 	}
-
-	
 
 	public Object getFieldValue(CommandSender sender, FieldType type, String parse) {
 		switch (type) {
@@ -195,12 +201,12 @@ public class RewardsTime extends JavaPlugin {
 		smeltRewards = config.getBoolean("rewards.smelt", true);
 		blockRewards = config.getBoolean("rewards.block", true);
 		voteRewards = config.getBoolean("rewards.vote", true);
-		
+
 		mobArmorBonus = config.getBoolean("bonus.mobarmor", true);
 		toolBonus = config.getBoolean("bonus.tool", true);
-		
+
 		rewardCreative = config.getBoolean("rewardcreative", false);
-		
+
 		armorMaterial.clear();
 		armorMaterial.put(ArmorMaterial.DIAMOND, loadBonus("mobarmor.material.diamond"));
 		armorMaterial.put(ArmorMaterial.IRON, loadBonus("mobarmor.material.iron"));
@@ -208,7 +214,7 @@ public class RewardsTime extends JavaPlugin {
 		armorMaterial.put(ArmorMaterial.LEATHER, loadBonus("mobarmor.material.leather"));
 		armorMaterial.put(ArmorMaterial.CHAINMAIL, loadBonus("mobarmor.material.chainmail"));
 		armorMaterial.put(ArmorMaterial.OTHER, loadBonus("mobarmor.material.other"));
-		
+
 		armorType.clear();
 		armorType.put(ArmorType.HELMET, loadBonus("mobarmor.type.helmet"));
 		armorType.put(ArmorType.CHESTPLATE, loadBonus("mobarmor.type.chestplate"));
@@ -224,29 +230,29 @@ public class RewardsTime extends JavaPlugin {
 		scheduleTime = config.getInt("rewardtime", 500);
 		damageTimeout = config.getInt("damagetimeout", 60);
 		voteSaveMinutes = config.getInt("votesaveminutes", 15);
-		
+
 		voteEveryList.clear();
 		Map<String, Object> map = config.getValues(true);
 		Object votesObject = map.get("votes");
-		if(votesObject != null && votesObject instanceof ConfigurationSection){
-			map = ((ConfigurationSection)votesObject).getValues(true);
+		if (votesObject != null && votesObject instanceof ConfigurationSection) {
+			map = ((ConfigurationSection) votesObject).getValues(true);
 			Object everyObject = map.get("every");
-			if(everyObject != null && everyObject instanceof ConfigurationSection){
-				Set<String> keys = ((ConfigurationSection)everyObject).getKeys(true);
-				for(String s : keys){
-					try{
+			if (everyObject != null && everyObject instanceof ConfigurationSection) {
+				Set<String> keys = ((ConfigurationSection) everyObject).getKeys(true);
+				for (String s : keys) {
+					try {
 						int i = Integer.parseInt(s);
 						voteEveryList.add(i);
-					} catch(NumberFormatException e){
+					} catch (NumberFormatException e) {
 						continue;
 					}
 				}
 			}
 		}
-		
-//		for(Integer i : voteEveryList){
-//			getLogger().info("Detected reward for voting every " + i + " times");
-//		}
+
+		// for(Integer i : voteEveryList){
+		// getLogger().info("Detected reward for voting every " + i + " times");
+		// }
 	}
 
 	public Object parseObject(String str) {
@@ -265,13 +271,15 @@ public class RewardsTime extends JavaPlugin {
 	}
 
 	public void playerReward(OfflinePlayer player, double gain, double bonus, double loss) {
-		if(vaultApi == null) return;
+		if (vaultApi == null)
+			return;
 		double total = gain + bonus - loss;
 		if (total > 0)
 			economyDeposit(player, total);
 		else if (total < 0)
 			economyWithdraw(player, -total);
-		if(!player.isOnline()) return;
+		if (!player.isOnline())
+			return;
 		RewardsData data = fiveChange.get(player.getUniqueId());
 		if (data == null) {
 			data = new RewardsData();
@@ -292,17 +300,17 @@ public class RewardsTime extends JavaPlugin {
 		}
 
 	}
-	
-	public void entityDamage(Entity entity, Player player, double amount){
+
+	public void entityDamage(Entity entity, Player player, double amount) {
 		DamageData data = entityDamageData.get(entity.getUniqueId());
-		if(data == null){
+		if (data == null) {
 			data = new DamageData();
 			entityDamageData.put(entity.getUniqueId(), data);
 		}
 		data.damageFrom(player.getUniqueId(), amount);
 	}
-	
-	public boolean hasEntity(Entity entity){
+
+	public boolean hasEntity(Entity entity) {
 		return entityDamageData.get(entity.getUniqueId()) != null;
 	}
 
@@ -312,9 +320,12 @@ public class RewardsTime extends JavaPlugin {
 			if (player == null)
 				continue;
 			RewardsData data = entry.getValue();
-			String message = title + "Over the last " + timeString(scheduleTime) + ", you gained " + valColor + "$"
-					+ data.gained + white + " (+" + valColor + "$" + data.gainedBonus + white + " bonus) and lost "
-					+ valColor + "$" + data.lost + white + " (Total: " + valColor + "$" + data.getTotal() + white + ")";
+			String gainStr = valColor + "$" + numberFormat.format(data.gained) + white;
+			String bonusStr = valColor + "$" + numberFormat.format(data.gainedBonus) + white;
+			String lossStr = valColor + "$" + numberFormat.format(data.lost) + white;
+			String totalStr = valColor + "$" + numberFormat.format(data.getTotal()) + white;
+			String message = title + "Over the last " + timeString(scheduleTime) + ", you gained " + gainStr + " (+"
+					+ bonusStr + " bonus) and lost " + lossStr + " (Total: " + totalStr + ")";
 			player.sendMessage(message);
 		}
 		fiveChange.clear();
@@ -334,11 +345,21 @@ public class RewardsTime extends JavaPlugin {
 		if (command.getName().equalsIgnoreCase("rewardstime")) {
 			if (args.length < 1) {
 				sender.sendMessage("RewardsTime commands: ");
-				sender.sendMessage("- /rewardstime reload : Reloads the config");
-				sender.sendMessage("- /rewardstime field <type> <item/mob name> <field> [newvalue]");
-				sender.sendMessage("- /rewardstime config <field> [newvalue]");
+				if(sender.hasPermission("rewardstime.reload"))sender.sendMessage("- /rewardstime reload : Reloads the config");
+				if(sender.hasPermission("rewardstime.set")){
+					sender.sendMessage("- /rewardstime field <type> <item/mob name> <field> [newvalue]");
+					sender.sendMessage("- /rewardstime config <field> [newvalue]");
+				} else if(sender.hasPermission("rewardstime.get")){
+					sender.sendMessage("- /rewardstime field <type> <item/mob name> <field>");
+					sender.sendMessage("- /rewardstime config <field>");
+				}
+				
 				return true;
 			} else if ("reload".equalsIgnoreCase(args[0])) {
+				if(!sender.hasPermission("rewardstime.reload")){
+					sender.sendMessage(title + "You do not have permission to use /rewardstime reload");
+					return true;
+				}
 				reloadConfig();
 				loadConfigValues();
 				sender.sendMessage(title + "Config reloaded successfully!");
@@ -355,18 +376,26 @@ public class RewardsTime extends JavaPlugin {
 				String type = args[1];
 				String name = args[2];
 				String field = args[3];
-				if (!check(sender, type, name, field))
+				if (!checkFieldCommand(sender, type, name, field))
 					return true;
 				String str = type + "." + name.toLowerCase() + "." + field;
 				String strChat = typeColor + type + white + "." + nameColor + name.toLowerCase() + white + "."
 						+ fieldColor + field;
 				if (args.length < 5) {
+					if(!sender.hasPermission("rewardstime.get")){
+						sender.sendMessage(title + "You do not have permission to get values");
+						return true;
+					}
 					if (!config.contains(str)) {
 						sender.sendMessage(title + "No value is set for " + strChat);
 					} else {
 						sender.sendMessage(title + strChat + white + " is set to " + valColor + config.get(str));
 					}
 				} else {
+					if(!sender.hasPermission("rewardstime.set")){
+						sender.sendMessage(title + "You do not have permission to set values");
+						return true;
+					}
 					Object val = getFieldValue(sender, fieldTypes.get(field), args[4]);
 					if (val == null)
 						return true;
@@ -385,6 +414,10 @@ public class RewardsTime extends JavaPlugin {
 				}
 				String field = args[1];
 				if (args.length < 3) {
+					if(!sender.hasPermission("rewardstime.get")){
+						sender.sendMessage(title + "You do not have permission to get values");
+						return true;
+					}
 					if (!config.contains(field)) {
 						sender.sendMessage(title + "No value is set for " + fieldColor + field);
 					} else {
@@ -392,10 +425,20 @@ public class RewardsTime extends JavaPlugin {
 								+ config.get(field));
 					}
 				} else {
+					if(!sender.hasPermission("rewardstime.set")){
+						sender.sendMessage(title + "You do not have permission to set values");
+						return true;
+					}
 					config.set(field, parseObject(args[2]));
 					sender.sendMessage(title + fieldColor + field + white + " set to " + valColor + args[2]);
 					saveConfig();
 					loadConfigValues();
+				}
+				return true;
+			} else if("rewards".equalsIgnoreCase(args[0])){
+				if(!sender.hasPermission("rewardstime.rewards")){
+					sender.sendMessage(title + "You do not have permission to use /rewardstime rewards");
+					return true;
 				}
 				return true;
 			}
@@ -404,7 +447,7 @@ public class RewardsTime extends JavaPlugin {
 		return false;
 	}
 
-	public boolean check(CommandSender sender, String type, String name, String field) {
+	public boolean checkFieldCommand(CommandSender sender, String type, String name, String field) {
 		String[] nameParts = name.split("/");
 		if (nameParts.length > 2) {
 			sender.sendMessage(title + "Only one metadata slash is allowed");
@@ -459,16 +502,18 @@ public class RewardsTime extends JavaPlugin {
 			break;
 		case "tool.enchant":
 			Enchantment enchant = Enchantment.getByName(nameParts[0]);
-			if(enchant == null){
+			if (enchant == null) {
 				sender.sendMessage(title + "Unknown enchantment: " + nameParts[0]);
 				return false;
 			}
 			isBonus = true;
+			break;
 		default:
 			sender.sendMessage(title + "Unknown type: " + typeColor + type + white
 					+ ", types are: [craft, smelt, block, mob, mobarmor.material, mobarmor.type]");
 			return false;
 		}
+
 		if (isBonus) {
 			if (!field.equals("type") && !field.equals("bonus")) {
 				sender.sendMessage(title + "Unknown bonus field: " + fieldColor + field + white
@@ -483,13 +528,15 @@ public class RewardsTime extends JavaPlugin {
 		}
 		return true;
 	}
-	
-	public void economyWithdraw(OfflinePlayer player, double amount){
-		if(vaultApi != null) vaultApi.withdraw(player, amount);
+
+	public void economyWithdraw(OfflinePlayer player, double amount) {
+		if (vaultApi != null)
+			vaultApi.withdraw(player, amount);
 	}
-	
-	public void economyDeposit(OfflinePlayer player, double amount){
-		if(vaultApi != null) vaultApi.deposit(player, amount);
+
+	public void economyDeposit(OfflinePlayer player, double amount) {
+		if (vaultApi != null)
+			vaultApi.deposit(player, amount);
 	}
 
 	public RewardsBonus loadBonus(String base) {
@@ -534,16 +581,18 @@ public class RewardsTime extends JavaPlugin {
 			return ArmorMaterial.OTHER;
 		}
 	}
-	
-	public void incrementVoteCount(UUID voter){
+
+	public void incrementVoteCount(UUID voter) {
 		Integer count = voteCounts.get(voter);
-		if(count == null) count = 0;
+		if (count == null)
+			count = 0;
 		voteCounts.put(voter, count + 1);
 	}
-	
-	public int getVotes(UUID voter){
+
+	public int getVotes(UUID voter) {
 		Integer count = voteCounts.get(voter);
-		if(count == null) count = 0;
+		if (count == null)
+			count = 0;
 		return count;
 	}
 
@@ -577,33 +626,34 @@ public class RewardsTime extends JavaPlugin {
 			return ArmorType.OTHER;
 		}
 	}
-	
-	public void saveVoteCounts(){
+
+	public void saveVoteCounts() {
 		int num = voteCounts.size();
 		File file = new File(getDataFolder(), "votes.bin");
 		file.getParentFile().mkdirs();
-		try{
+		try {
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
 			out.writeInt(num);
-			for(Entry<UUID, Integer> entry : voteCounts.entrySet()){
+			for (Entry<UUID, Integer> entry : voteCounts.entrySet()) {
 				out.writeLong(entry.getKey().getMostSignificantBits());
 				out.writeLong(entry.getKey().getLeastSignificantBits());
 				out.writeInt(entry.getValue());
 			}
 			out.close();
-		} catch(IOException e){
+		} catch (IOException e) {
 			getLogger().warning("Failed to save vote counts:");
 			getLogger().warning(e.getMessage());
 		}
 	}
-	
-	public void loadVoteCounts(){
+
+	public void loadVoteCounts() {
 		File file = new File(getDataFolder(), "votes.bin");
-		if(!file.exists()) return;
-		try{
+		if (!file.exists())
+			return;
+		try {
 			DataInputStream in = new DataInputStream(new FileInputStream(file));
 			int num = in.readInt();
-			for(int d = 0; d < num; ++d){
+			for (int d = 0; d < num; ++d) {
 				long most = in.readLong();
 				long least = in.readLong();
 				UUID id = new UUID(most, least);
@@ -611,19 +661,21 @@ public class RewardsTime extends JavaPlugin {
 				voteCounts.put(id, votes);
 			}
 			in.close();
-		} catch(IOException e){
+		} catch (IOException e) {
 			getLogger().warning("Failed to load vote counts:");
 			getLogger().warning(e.getMessage());
 		}
 	}
-	
-	public BonusType getConfigBonusType(String path, BonusType def){
+
+	public BonusType getConfigBonusType(String path, BonusType def) {
 		String at = config.getString(path);
-		if(at == null || at == "") return def;
+		if (at == null || at == "")
+			return def;
 		BonusType result = def;
-		try{
+		try {
 			result = BonusType.valueOf(at.toUpperCase());
-		} catch(IllegalArgumentException e){}
+		} catch (IllegalArgumentException e) {
+		}
 		return result;
 	}
 }

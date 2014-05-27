@@ -15,5 +15,17 @@ permissions:
         default: op
         children:
             rewardstime.command: true
+            rewardstime.set: true
+            rewardstime.get: true
+            rewardstime.reload: true
+            rewardstimr.rewards: true
     rewardstime.command:
+        default: true
+    rewardstime.set:
         default: op
+    rewardstime.get:
+        default: op
+    rewardstime.reload:
+        default: op
+    rewardstime.rewards:
+        default: true
