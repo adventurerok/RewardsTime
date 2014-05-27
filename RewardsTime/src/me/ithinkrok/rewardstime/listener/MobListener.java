@@ -44,6 +44,10 @@ public class MobListener implements Listener {
 		for(ItemStack item : plugin.computeDrops(dropsStr)){
 			event.getDrops().add(item);
 		}
+		
+		if(event.getDroppedExp() == 0) return;
+		int exp = plugin.config.getInt(str + ".exp", 0);
+		event.setDroppedExp(event.getDroppedExp() + exp);
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)

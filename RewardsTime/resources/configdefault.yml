@@ -135,6 +135,7 @@ mob:
     creeper:
         money: 5
         items: diamond_sword//2/0.05
+        exp: 10
     zombie:
         money: 2
     chicken:
