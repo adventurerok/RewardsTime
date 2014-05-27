@@ -18,8 +18,10 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
+import org.bukkit.util.Vector;
 
 public class RewardsTime extends JavaPlugin {
 
@@ -51,6 +53,8 @@ public class RewardsTime extends JavaPlugin {
 	public int damageTimeout = 60;
 	public int voteSaveMinutes = 15;
 
+	public Random rand = new Random();
+	
 	public HashMap<UUID, RewardsData> fiveChange = new HashMap<>();
 
 	public HashMap<UUID, DamageData> entityDamageData = new HashMap<>();
@@ -675,6 +679,44 @@ public class RewardsTime extends JavaPlugin {
 		try {
 			result = BonusType.valueOf(at.toUpperCase());
 		} catch (IllegalArgumentException e) {
+		}
+		return result;
+	}
+	
+	public void givePlayerItems(Player player, ItemStack...items){
+		for(ItemStack item : player.getInventory().addItem(items).values()){
+			Item drop = (Item) player.getWorld().spawnEntity(player.getLocation(), EntityType.DROPPED_ITEM);
+			drop.setItemStack(item);
+			drop.setVelocity(new Vector(rand.nextDouble() - 0.5, rand.nextDouble(), rand.nextDouble() - 0.5));
+		}
+	}
+	
+	public Collection<ItemStack> computeDrops(String dropsStr){
+		ArrayList<ItemStack> result = new ArrayList<>();
+		if(dropsStr == null || dropsStr.isEmpty()) return result;
+		String dropParts[] = dropsStr.split(",");
+		for(String drop : dropParts){
+			String sections[] = drop.split("/");
+			if(sections.length != 4) continue;
+			try{
+				Material mat = Material.getMaterial(sections[0].toUpperCase());
+				if(mat == null || mat == Material.AIR) continue;
+				int metadata = 0;
+				if(sections[1] != null && !sections[1].isEmpty()) metadata = Integer.parseInt(sections[1]);
+				int maxamount = Integer.parseInt(sections[2]);
+				double percent = Double.parseDouble(sections[3]) / 100d;
+				if(percent > 1) percent = 1;
+				else if(percent <= 0) continue;
+				int amount = 0;
+				for(int d = 0; d < maxamount; ++d){
+					if(rand.nextDouble() < percent) ++amount;
+				}
+				if(amount == 0) continue;
+				while(amount > 0){
+					result.add(new ItemStack(mat, Math.min(amount, mat.getMaxStackSize()), (short)metadata));
+					amount -= mat.getMaxStackSize();
+				} 
+			} catch(NumberFormatException e){}
 		}
 		return result;
 	}

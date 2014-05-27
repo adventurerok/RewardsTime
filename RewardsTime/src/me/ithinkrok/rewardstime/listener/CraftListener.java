@@ -1,11 +1,14 @@
 package me.ithinkrok.rewardstime.listener;
 
+import java.util.Collection;
+
 import me.ithinkrok.rewardstime.RewardsTime;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
+import org.bukkit.inventory.ItemStack;
 
 public class CraftListener implements Listener {
 
@@ -30,6 +33,11 @@ public class CraftListener implements Listener {
 			amount = plugin.config.getDouble(withMeta);
 		}
 		amount *= event.getCurrentItem().getAmount();
+		
+		String dropsStr = plugin.config.getString("craft." + item + ".items");
+		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
+		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+		
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.playerReward(player, amount, 0, 0);
@@ -50,6 +58,11 @@ public class CraftListener implements Listener {
 //			amount = plugin.config.getDouble(withMeta);
 //		}
 		amount *= event.getItemAmount();
+		
+		String dropsStr = plugin.config.getString("smelt." + item + ".items");
+		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
+		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+		
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.playerReward(player, amount, 0, 0);

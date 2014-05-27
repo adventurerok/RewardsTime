@@ -130,11 +130,11 @@ tool:
 # Format -
 # mob_name:
 #   money: reward_money
-#   drops: item_name/[metadata]/maxdrops/changeperdrop%,item_name/[metadata]/maxdrops/chanceperdrop%,...
+#   items: item_name/[metadata]/maxdrops/changeperdrop%,item_name/[metadata]/maxdrops/chanceperdrop%,...
 mob:
     creeper:
         money: 5
-        drops: diamond_sword//2/10,
+        items: diamond_sword//2/0.05
     zombie:
         money: 2
     chicken:

@@ -40,31 +40,9 @@ public class MobListener implements Listener {
 		if(!plugin.mobRewards) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		String str = "mob." + entName;
-		String dropsStr = plugin.config.getString(str + ".drops");
-		if(dropsStr == null || dropsStr.isEmpty()) return;
-		String dropParts[] = dropsStr.split(",");
-		for(String drop : dropParts){
-			String sections[] = drop.split("/");
-			if(sections.length != 4) continue;
-			try{
-				Material mat = Material.getMaterial(sections[0].toUpperCase());
-				if(mat == null || mat == Material.AIR) continue;
-				int metadata = 0;
-				if(sections[1] != null && !sections[1].isEmpty()) metadata = Integer.parseInt(sections[1]);
-				int maxamount = Integer.parseInt(sections[2]);
-				double percent = Double.parseDouble(sections[3]) / 100d;
-				if(percent > 1) percent = 1;
-				else if(percent <= 0) continue;
-				int amount = 0;
-				for(int d = 0; d < maxamount; ++d){
-					if(rand.nextDouble() < percent) ++amount;
-				}
-				if(amount == 0) continue;
-				while(amount > 0){
-					event.getDrops().add(new ItemStack(mat, Math.min(amount, mat.getMaxStackSize()), (short)metadata));
-					amount -= mat.getMaxStackSize();
-				} 
-			} catch(NumberFormatException e){}
+		String dropsStr = plugin.config.getString(str + ".items");
+		for(ItemStack item : plugin.computeDrops(dropsStr)){
+			event.getDrops().add(item);
 		}
 	}
 
