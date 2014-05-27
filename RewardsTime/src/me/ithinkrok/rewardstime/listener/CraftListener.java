@@ -38,12 +38,15 @@ public class CraftListener implements Listener {
 		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
 		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
 		
+		player.setExp(player.getExp() + (float)plugin.getConfig().getDouble("craft." + item + ".exp", 0));
+		
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.playerReward(player, amount, 0, 0);
 		} else if(amount < 0){
 			plugin.playerReward(player, 0, 0, -amount);
 		}
+		
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -63,12 +66,15 @@ public class CraftListener implements Listener {
 		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
 		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
 		
+		player.setExp(player.getExp() + (float)plugin.getConfig().getDouble("craft." + item + ".exp", 0));
+		
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.playerReward(player, amount, 0, 0);
 		} else if(amount < 0){
 			plugin.playerReward(player, 0, 0, -amount);
 		}
+		
 	}
 	
 }
