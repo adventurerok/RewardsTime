@@ -84,6 +84,7 @@ public class RewardsTime extends JavaPlugin {
 		File conFile = new File(getDataFolder(), "config.yml");
 		if (!conFile.exists()) { // Cannot use bukkit default config feature as
 									// causes unintended side effects
+			conFile.getParentFile().mkdirs();
 			try {
 				InputStream in = RewardsTime.class.getClassLoader().getResourceAsStream("configdefault.yml");
 				FileOutputStream out = new FileOutputStream(conFile);
@@ -575,6 +576,7 @@ public class RewardsTime extends JavaPlugin {
 	public void saveVoteCounts(){
 		int num = voteCounts.size();
 		File file = new File(getDataFolder(), "votes.bin");
+		file.getParentFile().mkdirs();
 		try{
 			DataOutputStream out = new DataOutputStream(new FileOutputStream(file));
 			out.writeInt(num);
