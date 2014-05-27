@@ -691,6 +691,14 @@ public class RewardsTime extends JavaPlugin {
 		}
 	}
 	
+	public void dropItems(Location loc, ItemStack...items){
+		for(ItemStack item : items){
+			Item drop = (Item) loc.getWorld().spawnEntity(loc, EntityType.DROPPED_ITEM);
+			drop.setItemStack(item);
+			drop.setVelocity(new Vector(rand.nextDouble() - 0.5, rand.nextDouble(), rand.nextDouble() - 0.5));
+		}
+	}
+	
 	public Collection<ItemStack> computeDrops(String dropsStr){
 		ArrayList<ItemStack> result = new ArrayList<>();
 		if(dropsStr == null || dropsStr.isEmpty()) return result;

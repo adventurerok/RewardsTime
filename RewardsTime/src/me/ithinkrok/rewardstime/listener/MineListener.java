@@ -9,6 +9,8 @@ import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.ExperienceOrb;
 import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
@@ -57,6 +59,17 @@ public class MineListener implements Listener {
 				if(bonus != 0) amount = RewardsBonus.apply(amount, type, bonus);
 			}
 		}
+		
+		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString("block." + item + ".items"));
+		plugin.dropItems(event.getBlock().getLocation(), items.toArray(new ItemStack[items.size()]));
+		
+		int exp = plugin.config.getInt("block." + item + ".exp", 0);
+		if(exp > 0){
+			ExperienceOrb xp = (ExperienceOrb) event.getBlock().getLocation().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.EXPERIENCE_ORB);
+			xp.setExperience(exp);
+		}
+		
+		
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.playerReward(event.getPlayer(), amountStart, amount - amountStart, 0);
