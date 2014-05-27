@@ -35,10 +35,12 @@ public class CraftListener implements Listener {
 		amount *= event.getCurrentItem().getAmount();
 		
 		String dropsStr = plugin.config.getString("craft." + item + ".items");
-		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
-		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+		for(int d = 0; d < event.getCurrentItem().getAmount(); ++d){
+			Collection<ItemStack> result = plugin.computeDrops(dropsStr);
+			plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+		}
 		
-		player.giveExp(plugin.getConfig().getInt("craft." + item + ".exp", 0));
+		player.giveExp(event.getCurrentItem().getAmount() * plugin.getConfig().getInt("craft." + item + ".exp", 0));
 		
 		if(amount == 0) return;
 		if(amount > 0){
@@ -63,10 +65,12 @@ public class CraftListener implements Listener {
 		amount *= event.getItemAmount();
 		
 		String dropsStr = plugin.config.getString("smelt." + item + ".items");
-		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
-		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+		for(int d = 0; d < event.getItemAmount(); ++d){
+			Collection<ItemStack> result = plugin.computeDrops(dropsStr);
+			plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+		}
 		
-		player.giveExp(plugin.getConfig().getInt("smelt." + item + ".exp", 0));
+		player.giveExp(event.getItemAmount() * plugin.getConfig().getInt("smelt." + item + ".exp", 0));
 		
 		if(amount == 0) return;
 		if(amount > 0){
