@@ -14,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -59,6 +60,7 @@ public class RewardsTime extends JavaPlugin {
 	public boolean craftRewards = true;
 	public boolean smeltRewards = true;
 	public boolean mobArmorBonus = true;
+	public boolean toolBonus = true;
 	public boolean blockRewards = true;
 	public boolean voteRewards = true;
 	public boolean rewardCreative = false;
@@ -192,8 +194,12 @@ public class RewardsTime extends JavaPlugin {
 		smeltRewards = config.getBoolean("rewards.smelt", true);
 		blockRewards = config.getBoolean("rewards.block", true);
 		voteRewards = config.getBoolean("rewards.vote", true);
+		
 		mobArmorBonus = config.getBoolean("bonus.mobarmor", true);
+		toolBonus = config.getBoolean("bonus.tool", true);
+		
 		rewardCreative = config.getBoolean("rewardcreative", false);
+		
 		armorMaterial.put(ArmorMaterial.DIAMOND, loadBonus("mobarmor.material.diamond"));
 		armorMaterial.put(ArmorMaterial.IRON, loadBonus("mobarmor.material.iron"));
 		armorMaterial.put(ArmorMaterial.GOLD, loadBonus("mobarmor.material.gold"));
@@ -445,6 +451,12 @@ public class RewardsTime extends JavaPlugin {
 			}
 			isBonus = true;
 			break;
+		case "tool.enchant":
+			Enchantment enchant = Enchantment.getByName(nameParts[0]);
+			if(enchant == null){
+				sender.sendMessage(title + "Unknown enchantment: " + nameParts[0]);
+				return false;
+			}
 		default:
 			sender.sendMessage(title + "Unknown type: " + typeColor + type + white
 					+ ", types are: [craft, smelt, block, mob, mobarmor.material, mobarmor.type]");
@@ -595,5 +607,15 @@ public class RewardsTime extends JavaPlugin {
 			getLogger().warning("Failed to load vote counts:");
 			getLogger().warning(e.getMessage());
 		}
+	}
+	
+	public BonusType getConfigBonusType(String path, BonusType def){
+		String at = config.getString(path);
+		if(at == null || at == "") return def;
+		BonusType result = def;
+		try{
+			result = BonusType.valueOf(at.toUpperCase());
+		} catch(IllegalArgumentException e){}
+		return result;
 	}
 }

@@ -1,13 +1,14 @@
 package me.ithinkrok.rewardstime;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 
+import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -16,6 +17,7 @@ import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.inventory.CraftItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 public class RewardsListener implements Listener {
 
@@ -139,6 +141,26 @@ public class RewardsListener implements Listener {
 		String withMeta = "block." + item + "/" + data + ".money";
 		if(plugin.config.contains(withMeta)){
 			amount = plugin.config.getDouble(withMeta);
+		}
+		Collection<ItemStack> drops =event.getBlock().getDrops(event.getPlayer().getItemInHand());
+		for(ItemStack i : drops){
+			
+			//Prevent infinite rewards for destroying the block
+			if(i.getType() == event.getBlock().getType()) return;
+		}
+		if(plugin.toolBonus && event.getPlayer().getItemInHand().getType() != Material.AIR){
+			ItemStack tool = event.getPlayer().getItemInHand();
+			for(Entry<Enchantment, Integer> entry : tool.getEnchantments().entrySet()){
+				String str = "tool.enchant." + entry.getKey().getName();
+				double bonus = plugin.getConfig().getDouble(str + ".bonus");
+				BonusType type = plugin.getConfigBonusType(str + ".type", BonusType.MULTIPLY);
+				double lvlBonus = plugin.getConfig().getDouble(str + "/" + entry.getValue() + ".bonus");
+				if(lvlBonus != 0){
+					bonus = lvlBonus;
+					type =  plugin.getConfigBonusType(str + "/" + entry.getValue() + ".type", BonusType.MULTIPLY);
+				}
+				amount = RewardsBonus.apply(amount, type, bonus);
+			}
 		}
 		if(amount == 0) return;
 		if(amount > 0){

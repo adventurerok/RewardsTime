@@ -14,6 +14,7 @@ rewards:
 #Enable bonus rewards
 bonus:
     mobarmor: true
+    tool: true
 
 #Enable rewards in these gamemodes
 gamemodes:
@@ -34,6 +35,7 @@ votesaveminutes: 15
 # Format - 
 # item_name[/metadata]:
 #   money: reward_money
+# Warning: Items that can be repeatedly crafted such as iron <> ironblocks can be exploited
 craft:
     iron_pickaxe:
         money: 4
@@ -45,7 +47,10 @@ smelt:
         money: 1
 
 #Block mining rewards
-# Metadata is supported  
+# Metadata is supported
+# Warning: While the player will not get rewards for blocks that drop themselves,
+#   blocks that drop a different item that can be placed to get the block back
+#   (Such as sugarcane) can be exploited
 block:
     diamond_ore:
         money: 10
@@ -104,6 +109,22 @@ mobarmor:
         boots:
             type: add
             bonus: 1
+
+# Default tool bonuses (bonus rewards for mining blocks with certain tools)
+tool:
+    enchant:
+        silk_touch:
+            type: multiply
+            bonus: 0
+        loot_bonus_blocks/1:
+            type: multiply
+            bonus: 2
+        loot_bonus_blocks/2:
+            type: multiply
+            bonus: 3
+        loot_bonus_blocks/3:
+            type: multiply
+            bonus: 4
 
 #Rewards for killing mobs
 # Format -
