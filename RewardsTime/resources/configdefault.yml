@@ -52,12 +52,14 @@ block:
 
 
 #Rewards for voting
-#Note: "every" cannot go higher than 250. "achieve" can however
-#Note: You will only recieve the reward from the highest you have won in the "every" list
+#Note: "every" and "achieve" can only go up to 2^31 (2.147 billion)
+#Note: You will only recieve 1 reward for voting: 
+#   If the achieve list contains a reward for your count, it will be that one.
+#   Otherwise it will be the highest in the every list.
 
 votes:
     every:
-        1:
+        '1':
             money: 500
             broadcast: "<player> has voted and recieved $<money>"
     achieve:

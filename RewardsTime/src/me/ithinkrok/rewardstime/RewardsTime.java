@@ -12,6 +12,7 @@ import me.ithinkrok.rewardstime.votifier.VotifierApi;
 import org.bukkit.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -74,6 +75,7 @@ public class RewardsTime extends JavaPlugin {
 
 	@Override
 	public void onEnable() {
+		loadVoteCounts();
 		fieldTypes.put("money", FieldType.DOUBLE);
 		fieldTypes.put("bonus", FieldType.DOUBLE);
 		fieldTypes.put("type", FieldType.BONUSTYPE);
@@ -139,6 +141,7 @@ public class RewardsTime extends JavaPlugin {
 
 	@Override
 	public void onDisable() {
+		saveVoteCounts();
 		if(vaultApi != null) vaultApi.disable();
 	}
 
@@ -211,10 +214,26 @@ public class RewardsTime extends JavaPlugin {
 		damageTimeout = config.getInt("damagetimeout", 60);
 		voteSaveMinutes = config.getInt("votesaveminutes", 15);
 		
-		for(int d = 0; d < 250; ++d){
-			if(config.contains("votes.every." + d + ".money")){
-				voteEveryList.add(d);
+		Map<String, Object> map = config.getValues(true);
+		Object votesObject = map.get("votes");
+		if(votesObject != null && votesObject instanceof ConfigurationSection){
+			map = ((ConfigurationSection)votesObject).getValues(true);
+			Object everyObject = map.get("every");
+			if(everyObject != null && everyObject instanceof ConfigurationSection){
+				Set<String> keys = ((ConfigurationSection)everyObject).getKeys(true);
+				for(String s : keys){
+					try{
+						int i = Integer.parseInt(s);
+						voteEveryList.add(i);
+					} catch(NumberFormatException e){
+						continue;
+					}
+				}
 			}
+		}
+		
+		for(Integer i : voteEveryList){
+			getLogger().info("Detected reward for voting every " + i + " times");
 		}
 	}
 
@@ -500,7 +519,7 @@ public class RewardsTime extends JavaPlugin {
 	public void incrementVoteCount(UUID voter){
 		Integer count = voteCounts.get(voter);
 		if(count == null) count = 0;
-		voteCounts.put(voter, count++);
+		voteCounts.put(voter, count + 1);
 	}
 	
 	public int getVotes(UUID voter){
