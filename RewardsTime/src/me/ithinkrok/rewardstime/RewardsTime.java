@@ -21,7 +21,6 @@ import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
-import org.bukkit.util.Vector;
 
 public class RewardsTime extends JavaPlugin {
 
@@ -685,17 +684,13 @@ public class RewardsTime extends JavaPlugin {
 	
 	public void givePlayerItems(Player player, ItemStack...items){
 		for(ItemStack item : player.getInventory().addItem(items).values()){
-			Item drop = (Item) player.getWorld().spawnEntity(player.getLocation(), EntityType.DROPPED_ITEM);
-			drop.setItemStack(item);
-			drop.setVelocity(new Vector(rand.nextDouble() - 0.5, rand.nextDouble(), rand.nextDouble() - 0.5));
+			player.getWorld().dropItemNaturally(player.getLocation(), item);
 		}
 	}
 	
 	public void dropItems(Location loc, ItemStack...items){
 		for(ItemStack item : items){
-			Item drop = (Item) loc.getWorld().spawnEntity(loc, EntityType.DROPPED_ITEM);
-			drop.setItemStack(item);
-			drop.setVelocity(new Vector(rand.nextDouble() - 0.5, rand.nextDouble(), rand.nextDouble() - 0.5));
+			loc.getWorld().dropItemNaturally(loc, item);
 		}
 	}
 	
