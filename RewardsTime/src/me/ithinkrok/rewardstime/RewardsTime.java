@@ -201,18 +201,22 @@ public class RewardsTime extends JavaPlugin {
 		
 		rewardCreative = config.getBoolean("rewardcreative", false);
 		
+		armorMaterial.clear();
 		armorMaterial.put(ArmorMaterial.DIAMOND, loadBonus("mobarmor.material.diamond"));
 		armorMaterial.put(ArmorMaterial.IRON, loadBonus("mobarmor.material.iron"));
 		armorMaterial.put(ArmorMaterial.GOLD, loadBonus("mobarmor.material.gold"));
 		armorMaterial.put(ArmorMaterial.LEATHER, loadBonus("mobarmor.material.leather"));
 		armorMaterial.put(ArmorMaterial.CHAINMAIL, loadBonus("mobarmor.material.chainmail"));
 		armorMaterial.put(ArmorMaterial.OTHER, loadBonus("mobarmor.material.other"));
+		
+		armorType.clear();
 		armorType.put(ArmorType.HELMET, loadBonus("mobarmor.type.helmet"));
 		armorType.put(ArmorType.CHESTPLATE, loadBonus("mobarmor.type.chestplate"));
 		armorType.put(ArmorType.LEGGINGS, loadBonus("mobarmor.type.leggings"));
 		armorType.put(ArmorType.BOOTS, loadBonus("mobarmor.type.boots"));
 		armorType.put(ArmorType.OTHER, loadBonus("mobarmor.type.other"));
 
+		enabledGameModes.clear();
 		enabledGameModes.put(GameMode.SURVIVAL, config.getBoolean("gamemodes.survival", true));
 		enabledGameModes.put(GameMode.CREATIVE, config.getBoolean("gamemodes.creative", false));
 		enabledGameModes.put(GameMode.ADVENTURE, config.getBoolean("gamemodes.adventure", true));
@@ -221,6 +225,7 @@ public class RewardsTime extends JavaPlugin {
 		damageTimeout = config.getInt("damagetimeout", 60);
 		voteSaveMinutes = config.getInt("votesaveminutes", 15);
 		
+		voteEveryList.clear();
 		Map<String, Object> map = config.getValues(true);
 		Object votesObject = map.get("votes");
 		if(votesObject != null && votesObject instanceof ConfigurationSection){
@@ -239,9 +244,9 @@ public class RewardsTime extends JavaPlugin {
 			}
 		}
 		
-		for(Integer i : voteEveryList){
-			getLogger().info("Detected reward for voting every " + i + " times");
-		}
+//		for(Integer i : voteEveryList){
+//			getLogger().info("Detected reward for voting every " + i + " times");
+//		}
 	}
 
 	public Object parseObject(String str) {
