@@ -1,7 +1,6 @@
 package me.ithinkrok.rewardstime.listener;
 
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.*;
@@ -14,10 +13,12 @@ import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.inventory.EntityEquipment;
+import org.bukkit.inventory.ItemStack;
 
 public class MobListener implements Listener {
 
 	RewardsTime plugin;
+	Random rand = new Random();
 
 	public MobListener(RewardsTime plugin) {
 		super();
@@ -32,6 +33,36 @@ public class MobListener implements Listener {
 		Player damager = (Player) event.getDamager();
 		if(!plugin.enabledGameModes.get(damager.getGameMode())) return;
 		plugin.entityDamage(event.getEntity(), damager, event.getDamage());
+	}
+	
+	@EventHandler(priority = EventPriority.HIGHEST)
+	public void changeDrops(EntityDeathEvent event){
+		if(!plugin.mobRewards) return;
+		String entName = event.getEntity().getType().toString().toLowerCase();
+		String str = "mob." + entName;
+		String dropsStr = plugin.config.getString(str + ".drops");
+		if(dropsStr == null || dropsStr.isEmpty()) return;
+		String dropParts[] = dropsStr.split(",");
+		for(String drop : dropParts){
+			String sections[] = drop.split("/");
+			if(sections.length != 4) continue;
+			try{
+				Material mat = Material.getMaterial(sections[0].toUpperCase());
+				if(mat == null || mat == Material.AIR) continue;
+				int metadata = 0;
+				if(sections[1] != null && !sections[1].isEmpty()) metadata = Integer.parseInt(sections[1]);
+				int maxamount = Integer.parseInt(sections[2]);
+				double percent = Double.parseDouble(sections[3]) / 100d;
+				if(percent > 1) percent = 1;
+				else if(percent <= 0) continue;
+				int amount = 0;
+				for(int d = 0; d < maxamount; ++d){
+					if(rand.nextDouble() < percent) ++amount;
+				}
+				if(amount == 0) continue;
+				event.getDrops().add(new ItemStack(mat, amount, (short)metadata));
+			} catch(NumberFormatException e){}
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
