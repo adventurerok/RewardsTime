@@ -1,9 +1,13 @@
 package me.ithinkrok.rewardstime.votifier;
 
+import java.util.Collection;
+
 import me.ithinkrok.rewardstime.RewardsTime;
 
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 import org.bukkit.event.*;
+import org.bukkit.inventory.ItemStack;
 
 import com.vexsoftware.votifier.model.Vote;
 import com.vexsoftware.votifier.model.VotifierEvent;
@@ -39,18 +43,8 @@ public class VotifierListener implements Listener {
 			voter.getPlayer().sendMessage(plugin.title + "You have voted " + plugin.valColor + votes + plugin.white + " times!");
 		}
 		
-		String str;
-		double amount;
-		String bc;
-		
-		
-		str = "votes.achieve." + votes + "";
-		amount = plugin.config.getDouble(str + ".money", 0);
-		if(amount != 0){
-			plugin.economyDeposit(voter, amount);
-			bc = plugin.config.getString(str + ".broadcast", "");
-			broadcast(bc, voter, amount);
-		} else {
+		String str = "votes.achieve." + votes + "";
+		if(!rewardPlayer(voter, str)){
 			int highest = 0;
 			for(int d = 0; d < plugin.voteEveryList.size(); ++d){
 				if((votes % plugin.voteEveryList.get(d)) == 0 && plugin.voteEveryList.get(d) > highest){
@@ -58,14 +52,31 @@ public class VotifierListener implements Listener {
 				}
 			}
 			str = "votes.every." + highest + "";
-			amount = plugin.config.getDouble(str + ".money", 0);
-			if(amount != 0){
-				plugin.economyDeposit(voter, amount);
-				bc = plugin.config.getString(str + ".broadcast", "");
-				broadcast(bc, voter, amount);
-			}
+			rewardPlayer(voter, str);
 		}
 		
+	}
+	
+	public boolean rewardPlayer(OfflinePlayer voter, String reward){
+		double amount = plugin.config.getDouble(reward + ".money", 0);
+		if(amount == 0) return false;
+		
+		plugin.economyDeposit(voter, amount);
+		broadcast(plugin.config.getString(reward + ".broadcast", ""), voter, amount);
+		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(reward + ".items"));
+		float xp = (float) plugin.config.getDouble(reward + ".exp", 0);
+		
+		if(voter.getPlayer() == null){
+			if(!items.isEmpty() || xp != 0){
+				Bukkit.broadcastMessage(plugin.title + ChatColor.RED + voter.getName() + plugin.white + " should have been online to collect an additional reward.");
+			}
+			return true;
+		}
+		Player player = voter.getPlayer();
+		plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
+		player.setExp(player.getExp() + xp);
+		
+		return true;
 	}
 	
 	public void broadcast(String msg, OfflinePlayer player, double money){
