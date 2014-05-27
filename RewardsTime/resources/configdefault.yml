@@ -66,11 +66,11 @@ votes:
     every:
         '1':
             money: 500
-            broadcast: "<player> has voted and recieved $<money>"
+            broadcast: "&c<player>&f has voted and recieved &9$<money>"
     achieve:
         '1':
             money: 1000
-            broadcast: "<player> has voted for the first time and recieved $<money>"
+            broadcast: "&c<player>&f has voted for the first time and recieved &9$<money>"
 
 # Default mobarmor bonuses
 # Type can be:

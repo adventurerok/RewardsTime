@@ -457,6 +457,7 @@ public class RewardsTime extends JavaPlugin {
 				sender.sendMessage(title + "Unknown enchantment: " + nameParts[0]);
 				return false;
 			}
+			isBonus = true;
 		default:
 			sender.sendMessage(title + "Unknown type: " + typeColor + type + white
 					+ ", types are: [craft, smelt, block, mob, mobarmor.material, mobarmor.type]");

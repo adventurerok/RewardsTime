@@ -32,7 +32,6 @@ public class VotifierListener implements Listener {
 			plugin.getLogger().info(vote.getUsername() + " voted, but they are not a player!");
 			return;
 		}
-		plugin.getLogger().info(voter.getName() + " voted!");
 		plugin.incrementVoteCount(voter.getUniqueId());
 		
 		int votes = plugin.getVotes(voter.getUniqueId());
