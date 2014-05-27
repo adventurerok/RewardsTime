@@ -1,5 +1,5 @@
 name: "RewardsTime"
-version: "0.0.1"
+version: "1.0.0"
 author: "ithinkrok"
 main: me.ithinkrok.rewardstime.RewardsTime
 depend: [Vault]
