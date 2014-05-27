@@ -148,10 +148,11 @@ public class RewardsListener implements Listener {
 			//Prevent infinite rewards for destroying the block
 			if(i.getType() == event.getBlock().getType()) return;
 		}
-		if(plugin.toolBonus && event.getPlayer().getItemInHand().getType() != Material.AIR){
+		double amountStart = amount;
+		if(amount > 0 && plugin.toolBonus && event.getPlayer().getItemInHand().getType() != Material.AIR){
 			ItemStack tool = event.getPlayer().getItemInHand();
 			for(Entry<Enchantment, Integer> entry : tool.getEnchantments().entrySet()){
-				String str = "tool.enchant." + entry.getKey().getName();
+				String str = "tool.enchant." + entry.getKey().getName().toLowerCase();
 				double bonus = plugin.getConfig().getDouble(str + ".bonus");
 				BonusType type = plugin.getConfigBonusType(str + ".type", BonusType.MULTIPLY);
 				double lvlBonus = plugin.getConfig().getDouble(str + "/" + entry.getValue() + ".bonus");
@@ -159,12 +160,12 @@ public class RewardsListener implements Listener {
 					bonus = lvlBonus;
 					type =  plugin.getConfigBonusType(str + "/" + entry.getValue() + ".type", BonusType.MULTIPLY);
 				}
-				amount = RewardsBonus.apply(amount, type, bonus);
+				if(bonus != 0) amount = RewardsBonus.apply(amount, type, bonus);
 			}
 		}
 		if(amount == 0) return;
 		if(amount > 0){
-			plugin.playerReward(event.getPlayer(), amount, 0, 0);
+			plugin.playerReward(event.getPlayer(), amountStart, amount - amountStart, 0);
 		} else if(amount < 0){
 			plugin.playerReward(event.getPlayer(), 0, 0, -amount);
 		}
