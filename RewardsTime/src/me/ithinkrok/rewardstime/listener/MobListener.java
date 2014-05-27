@@ -60,7 +60,10 @@ public class MobListener implements Listener {
 					if(rand.nextDouble() < percent) ++amount;
 				}
 				if(amount == 0) continue;
-				event.getDrops().add(new ItemStack(mat, amount, (short)metadata));
+				while(amount > 0){
+					event.getDrops().add(new ItemStack(mat, Math.min(amount, mat.getMaxStackSize()), (short)metadata));
+					amount -= mat.getMaxStackSize();
+				} 
 			} catch(NumberFormatException e){}
 		}
 	}
