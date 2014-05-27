@@ -38,7 +38,7 @@ public class CraftListener implements Listener {
 		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
 		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
 		
-		player.setExp(player.getExp() + (float)plugin.getConfig().getDouble("craft." + item + ".exp", 0));
+		player.giveExp(plugin.getConfig().getInt("craft." + item + ".exp", 0));
 		
 		if(amount == 0) return;
 		if(amount > 0){
@@ -66,7 +66,7 @@ public class CraftListener implements Listener {
 		Collection<ItemStack> result = plugin.computeDrops(dropsStr);
 		plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
 		
-		player.setExp(player.getExp() + (float)plugin.getConfig().getDouble("craft." + item + ".exp", 0));
+		player.giveExp(plugin.getConfig().getInt("smelt." + item + ".exp", 0));
 		
 		if(amount == 0) return;
 		if(amount > 0){

@@ -64,7 +64,7 @@ public class VotifierListener implements Listener {
 		plugin.economyDeposit(voter, amount);
 		broadcast(plugin.config.getString(reward + ".broadcast", ""), voter, amount);
 		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(reward + ".items"));
-		float xp = (float) plugin.config.getDouble(reward + ".exp", 0);
+		int xp = plugin.config.getInt(reward + ".exp", 0);
 		
 		if(voter.getPlayer() == null){
 			if(!items.isEmpty() || xp != 0){
@@ -74,7 +74,8 @@ public class VotifierListener implements Listener {
 		}
 		Player player = voter.getPlayer();
 		plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
-		player.setExp(player.getExp() + xp);
+		player.giveExp(xp);
+		
 		
 		return true;
 	}
