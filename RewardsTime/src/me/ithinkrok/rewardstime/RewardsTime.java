@@ -323,16 +323,29 @@ public class RewardsTime extends JavaPlugin {
 			if (player == null)
 				continue;
 			RewardsData data = entry.getValue();
-			String gainStr = valColor + "$" + numberFormat.format(data.gained) + white;
-			String bonusStr = valColor + "$" + numberFormat.format(data.gainedBonus) + white;
-			String lossStr = valColor + "$" + numberFormat.format(data.lost) + white;
-			String totalStr = valColor + "$" + numberFormat.format(data.getTotal()) + white;
-			String message = title + "Over the last " + timeString(scheduleTime) + ", you gained " + gainStr + " (+"
-					+ bonusStr + " bonus) and lost " + lossStr + " (Total: " + totalStr + ")";
-			player.sendMessage(message);
+			alertRewards(player, data);
 		}
 		fiveChange.clear();
 		scheduled = false;
+	}
+	
+	public void alertRewards(Player player){
+		RewardsData data = fiveChange.get(player.getUniqueId());
+		if(data == null) player.sendMessage(title + "You have gained no rewards recently");
+		else{
+			alertRewards(player, data);
+			fiveChange.remove(player.getUniqueId());
+		}
+	}
+	
+	public void alertRewards(Player player, RewardsData data){
+		String gainStr = valColor + "$" + numberFormat.format(data.gained) + white;
+		String bonusStr = valColor + "$" + numberFormat.format(data.gainedBonus) + white;
+		String lossStr = valColor + "$" + numberFormat.format(data.lost) + white;
+		String totalStr = valColor + "$" + numberFormat.format(data.getTotal()) + white;
+		String message = title + "Over the last " + timeString(scheduleTime) + ", you gained " + gainStr + " (+"
+				+ bonusStr + " bonus) and lost " + lossStr + " (Total: " + totalStr + ")";
+		player.sendMessage(message);
 	}
 
 	public String timeString(int seconds) {
@@ -443,6 +456,12 @@ public class RewardsTime extends JavaPlugin {
 					sender.sendMessage(title + "You do not have permission to use /rewardstime rewards");
 					return true;
 				}
+				if(!(sender instanceof Player)){
+					sender.sendMessage(title + "You must be a player to use /rewardstime rewards");
+					return true;
+				}
+				Player player = (Player) sender;
+				alertRewards(player);
 				return true;
 			}
 			return false;
