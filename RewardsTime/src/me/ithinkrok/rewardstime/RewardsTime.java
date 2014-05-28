@@ -86,6 +86,8 @@ public class RewardsTime extends JavaPlugin {
 		fieldTypes.put("money", FieldType.DOUBLE);
 		fieldTypes.put("bonus", FieldType.DOUBLE);
 		fieldTypes.put("type", FieldType.BONUSTYPE);
+		fieldTypes.put("items", FieldType.STRING);
+		fieldTypes.put("exp", FieldType.INTEGER);
 		File conFile = new File(getDataFolder(), "config.yml");
 		if (!conFile.exists()) { // Cannot use bukkit default config feature as
 									// causes unintended side effects
@@ -546,8 +548,8 @@ public class RewardsTime extends JavaPlugin {
 				return false;
 			}
 		} else {
-			if (!field.equals("money")) {
-				sender.sendMessage(title + "Unknown field: " + fieldColor + field + white + ", fields are: [money]");
+			if (!field.equals("money") && !field.equals("items") && !field.equals("exp")) {
+				sender.sendMessage(title + "Unknown field: " + fieldColor + field + white + ", fields are: [money,items,exp]");
 				return false;
 			}
 		}
@@ -763,11 +765,9 @@ public class RewardsTime extends JavaPlugin {
 			if(slot == null || slot.getType() == Material.AIR){
 				int amt = Math.min(toFit, fit.getMaxStackSize());
 				toFit -= amt;
-				//getLogger().info("Found free space in slot: " + d + " by " + amt);
 			} else if(slot.isSimilar(fit)){
 				int amt = Math.min(toFit, fit.getMaxStackSize() - slot.getAmount());
 				toFit -= amt;
-				//getLogger().info("Filled stack in slot: " + d + " by " + amt);
 			}
 		}
 		return fit.getAmount() - toFit;
