@@ -728,16 +728,18 @@ public class RewardsTime extends JavaPlugin {
 	public int getFittingAmount(ItemStack fit, Inventory inv){
 		int toFit = fit.getAmount();
 		for(int d = 0; d < 36; ++d){
-			if(toFit < 1) return 0;
+			if(toFit < 1) return fit.getAmount();
 			ItemStack slot = inv.getItem(d);
 			if(slot == null || slot.getType() == Material.AIR){
 				int amt = Math.min(toFit, fit.getMaxStackSize());
 				toFit -= amt;
+				//getLogger().info("Found free space in slot: " + d + " by " + amt);
 			} else if(slot.isSimilar(fit)){
 				int amt = Math.min(toFit, fit.getMaxStackSize() - slot.getAmount());
 				toFit -= amt;
+				//getLogger().info("Filled stack in slot: " + d + " by " + amt);
 			}
 		}
-		return toFit;
+		return fit.getAmount() - toFit;
 	}
 }
