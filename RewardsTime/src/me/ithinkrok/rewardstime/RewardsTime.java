@@ -88,6 +88,10 @@ public class RewardsTime extends JavaPlugin {
 		fieldTypes.put("type", FieldType.BONUSTYPE);
 		fieldTypes.put("items", FieldType.STRING);
 		fieldTypes.put("exp", FieldType.INTEGER);
+		fieldTypes.put("broadcast", FieldType.STRING);
+		fieldTypes.put("tell", FieldType.STRING);
+		fieldTypes.put("perms", FieldType.STRING);
+		
 		File conFile = new File(getDataFolder(), "config.yml");
 		if (!conFile.exists()) { // Cannot use bukkit default config feature as
 									// causes unintended side effects
@@ -549,8 +553,16 @@ public class RewardsTime extends JavaPlugin {
 				return false;
 			}
 		} else {
-			if (!field.equals("money") && !field.equals("items") && !field.equals("exp")) {
-				sender.sendMessage(title + "Unknown field: " + fieldColor + field + white + ", fields are: [money,items,exp]");
+			switch(field){
+			case "money":
+			case "exp":
+			case "items":
+			case "perms":
+			case "broadcast":
+			case "tell":
+				return true;
+			default:
+				sender.sendMessage(title + "Unknown field: " + fieldColor + field + white + ", fields are: [money,items,exp,perms,broadcast,tell]");
 				return false;
 			}
 		}
