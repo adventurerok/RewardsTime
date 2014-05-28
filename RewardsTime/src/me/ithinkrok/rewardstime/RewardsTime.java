@@ -369,6 +369,9 @@ public class RewardsTime extends JavaPlugin {
 					sender.sendMessage("- /rewardstime field <type> <item/mob name> <field>");
 					sender.sendMessage("- /rewardstime config <field>");
 				}
+				if(sender instanceof Player && sender.hasPermission("rewardstime.rewards")){
+					sender.sendMessage("/rewardstime rewards");
+				}
 				
 				return true;
 			} else if ("reload".equalsIgnoreCase(args[0])) {

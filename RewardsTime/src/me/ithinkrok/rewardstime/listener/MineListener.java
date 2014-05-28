@@ -30,6 +30,7 @@ public class MineListener implements Listener {
 		if(event.isCancelled()) return;
 		if(!plugin.blockRewards) return;
 		if(event.getPlayer() == null) return;
+		if(!event.getPlayer().hasPermission("rewardstime.rewards")) return;
 		if(!plugin.enabledGameModes.get(event.getPlayer().getGameMode())) return;
 		String item = event.getBlock().getType().toString().toLowerCase();
 		int data = event.getBlock().getData();

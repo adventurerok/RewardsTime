@@ -29,6 +29,7 @@ public class CraftListener implements Listener {
 		if(event.getSlotType() != SlotType.RESULT) return;
 		final Player player = (Player) event.getWhoClicked();
 		if(!plugin.enabledGameModes.get(player.getGameMode())) return;
+		if(!player.hasPermission("rewardstime.rewards")) return;
 		
 		int playerAmount = player.getItemOnCursor().getAmount();
 		int slotAmount = event.getCurrentItem().getAmount();
@@ -92,6 +93,7 @@ public class CraftListener implements Listener {
 		if(event.getSlotType() != SlotType.RESULT) return;
 		final Player player = (Player) event.getWhoClicked();
 		if(!plugin.enabledGameModes.get(player.getGameMode())) return;
+		if(!player.hasPermission("rewardstime.rewards")) return;
 		
 		int playerAmount = player.getItemOnCursor().getAmount();
 		int slotAmount = event.getCurrentItem().getAmount();
