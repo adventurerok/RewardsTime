@@ -4,6 +4,7 @@ import java.util.Collection;
 
 import me.ithinkrok.rewardstime.RewardsTime;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -40,10 +41,8 @@ public class CraftListener implements Listener {
 		event.getCurrentItem();
 		
 		String dropsStr = plugin.config.getString("craft." + item + ".items");
-		for(int d = 0; d < event.getCurrentItem().getAmount(); ++d){
-			Collection<ItemStack> result = plugin.computeDrops(dropsStr);
+			Collection<ItemStack> result = plugin.computeDrops(dropsStr, event.getCurrentItem().getAmount());
 			plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
-		}
 		
 		player.giveExp(event.getCurrentItem().getAmount() * plugin.getConfig().getInt("craft." + item + ".exp", 0));
 		
@@ -64,7 +63,7 @@ public class CraftListener implements Listener {
 		if(event.getInventory().getType() != InventoryType.FURNACE) return;
 		if(event.getWhoClicked() == null || !(event.getWhoClicked() instanceof Player)) return;
 		if(event.getSlotType() != SlotType.RESULT) return;
-		Player player = (Player) event.getWhoClicked();
+		final Player player = (Player) event.getWhoClicked();
 		if(!plugin.enabledGameModes.get(player.getGameMode())) return;
 		
 		int playerAmount = player.getItemOnCursor().getAmount();
@@ -85,6 +84,7 @@ public class CraftListener implements Listener {
 		} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
 			itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
 		}
+		if(itemAmount <= 0) return;
 		
 		String item = event.getCurrentItem().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("smelt." + item + ".money", 0);
@@ -94,11 +94,17 @@ public class CraftListener implements Listener {
 		}
 		amount *= itemAmount;
 		
-		String dropsStr = plugin.config.getString("smelt." + item + ".items");
-		for(int d = 0; d < itemAmount; ++d){
-			Collection<ItemStack> result = plugin.computeDrops(dropsStr);
-			plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
-		}
+		final int itemAmountFinal = itemAmount;
+		
+		final String dropsStr = plugin.config.getString("smelt." + item + ".items");
+		Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
+			
+			@Override
+			public void run() {
+				Collection<ItemStack> result = plugin.computeDrops(dropsStr, itemAmountFinal);
+				plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
+			}
+		});
 		
 		
 		player.giveExp(itemAmount * plugin.getConfig().getInt("smelt." + item + ".exp", 0));

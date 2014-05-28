@@ -41,7 +41,7 @@ public class MobListener implements Listener {
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		String str = "mob." + entName;
 		String dropsStr = plugin.config.getString(str + ".items");
-		for(ItemStack item : plugin.computeDrops(dropsStr)){
+		for(ItemStack item : plugin.computeDrops(dropsStr, 1)){
 			event.getDrops().add(item);
 		}
 		
