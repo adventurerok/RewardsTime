@@ -62,12 +62,13 @@ public class VotifierListener implements Listener {
 		if(amount == 0) return false;
 		
 		plugin.economyDeposit(voter, amount);
-		broadcast(plugin.config.getString(reward + ".broadcast", ""), voter, amount);
+		plugin.broadcast(plugin.config.getString(reward + ".broadcast", ""), voter.getName(), amount);
 		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(reward + ".items"), 1);
 		int xp = plugin.config.getInt(reward + ".exp", 0);
+		String perms = plugin.config.getString(reward + ".perms", "");
 		
 		if(voter.getPlayer() == null){
-			if(!items.isEmpty() || xp != 0){
+			if(!items.isEmpty() || xp != 0 || (perms != null && !perms.isEmpty())){
 				Bukkit.broadcastMessage(plugin.title + ChatColor.RED + voter.getName() + plugin.white + " should have been online to collect an additional reward.");
 			}
 			return true;
@@ -75,15 +76,8 @@ public class VotifierListener implements Listener {
 		Player player = voter.getPlayer();
 		plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
 		player.giveExp(xp);
-		
+		plugin.givePermissions(player, perms);
 		
 		return true;
-	}
-	
-	public void broadcast(String msg, OfflinePlayer player, double money){
-		if(msg == null) return;
-		msg = msg.replace("<player>", player.getName()).replace("<money>", Double.toString(money));
-		msg = msg.replace("&", "§");
-		Bukkit.broadcastMessage(plugin.title + msg);
 	}
 }

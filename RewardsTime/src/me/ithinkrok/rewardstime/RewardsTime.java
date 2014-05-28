@@ -7,8 +7,7 @@ import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 import me.ithinkrok.rewardstime.listener.*;
-import me.ithinkrok.rewardstime.vault.IVaultEconomy;
-import me.ithinkrok.rewardstime.vault.VaultEconomy;
+import me.ithinkrok.rewardstime.vault.*;
 import me.ithinkrok.rewardstime.votifier.VotifierApi;
 
 import org.bukkit.*;
@@ -36,7 +35,8 @@ public class RewardsTime extends JavaPlugin {
 		BOOLEAN, INTEGER, DOUBLE, STRING, BONUSTYPE
 	}
 
-	public IVaultEconomy vaultApi = null;
+	public IVaultEconomy ecoApi = null;
+	public IVaultPermissions permsApi = null;
 
 	public DecimalFormat numberFormat = new DecimalFormat("0.##");
 
@@ -115,7 +115,8 @@ public class RewardsTime extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new MobListener(this), this);
 		
 		if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
-			vaultApi = new VaultEconomy();
+			ecoApi = new VaultEconomy();
+			permsApi = new VaultPermissions();
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
 			new VotifierApi().createListener(this);
@@ -157,8 +158,8 @@ public class RewardsTime extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		saveVoteCounts();
-		if (vaultApi != null)
-			vaultApi.disable();
+		if (ecoApi != null)
+			ecoApi.disable();
 	}
 
 	public Object getFieldValue(CommandSender sender, FieldType type, String parse) {
@@ -276,7 +277,7 @@ public class RewardsTime extends JavaPlugin {
 	}
 
 	public void playerReward(OfflinePlayer player, double gain, double bonus, double loss) {
-		if (vaultApi == null)
+		if (ecoApi == null)
 			return;
 		double total = gain + bonus - loss;
 		if (total > 0)
@@ -557,13 +558,13 @@ public class RewardsTime extends JavaPlugin {
 	}
 
 	public void economyWithdraw(OfflinePlayer player, double amount) {
-		if (vaultApi != null)
-			vaultApi.withdraw(player, amount);
+		if (ecoApi != null)
+			ecoApi.withdraw(player, amount);
 	}
 
 	public void economyDeposit(OfflinePlayer player, double amount) {
-		if (vaultApi != null)
-			vaultApi.deposit(player, amount);
+		if (ecoApi != null)
+			ecoApi.deposit(player, amount);
 	}
 
 	public RewardsBonus loadBonus(String base) {
@@ -771,5 +772,28 @@ public class RewardsTime extends JavaPlugin {
 			}
 		}
 		return fit.getAmount() - toFit;
+	}
+	
+	public void givePermissions(Player player, String perms){
+		if(perms == null || perms.isEmpty()) return;
+		if(permsApi == null) return;
+		String[] parts = perms.split(",");
+		for(String p : parts){
+			boolean add = true;
+			if(p.startsWith("+")){
+				p = p.substring(1);
+			} else if(p.startsWith("-")){
+				add = false;
+				p = p.substring(1);
+			}
+			permsApi.setPermission(player, p, add);
+		}
+	}
+	
+	public void broadcast(String msg, String player, double money){
+		if(msg == null) return;
+		msg = msg.replace("<player>", player).replace("<money>", Double.toString(money));
+		msg = msg.replace("&", "§");
+		Bukkit.broadcastMessage(title + msg);
 	}
 }

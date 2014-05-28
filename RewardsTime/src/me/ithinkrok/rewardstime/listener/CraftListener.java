@@ -76,6 +76,9 @@ public class CraftListener implements Listener {
 		
 		player.giveExp(itemAmount * plugin.getConfig().getInt(base + ".exp", 0));
 		
+		String perms = plugin.getConfig().getString(base + ".perms");
+		plugin.givePermissions(player, perms);
+		
 		if(amount == 0) return;
 		if(amount > 0){
 			plugin.playerReward(player, amount, 0, 0);
@@ -138,6 +141,9 @@ public class CraftListener implements Listener {
 		
 		
 		player.giveExp(itemAmount * plugin.getConfig().getInt(base + ".exp", 0));
+		
+		String perms = plugin.getConfig().getString(base + ".perms");
+		plugin.givePermissions(player, perms);
 		
 		if(amount == 0) return;
 		if(amount > 0){

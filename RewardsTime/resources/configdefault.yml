@@ -67,6 +67,7 @@ votes:
         '1':
             money: 500
             broadcast: "&c<player>&f has voted and recieved &9$<money>"
+            perms: +that.permission,-other.permission,+all.of.this.*
     achieve:
         '1':
             money: 1000

@@ -94,10 +94,16 @@ public class MobListener implements Listener {
 		} else if(amountStart < 0){
 			loss = - amountStart;
 		}
+		
+		String perms = plugin.getConfig().getString("mob." + entName + ".perms");
+		
 		HashMap<UUID, Double> rewards = damages.getResult();
 		for(Entry<UUID, Double> entry : rewards.entrySet()){
 			double mult = entry.getValue();
 			plugin.playerReward(Bukkit.getOfflinePlayer(entry.getKey()), gain * mult, bonus * mult, loss * mult);
+			Player player = Bukkit.getPlayer(entry.getKey());
+			if(player == null) continue;
+			plugin.givePermissions(player, perms);
 		}
 		
 	}
