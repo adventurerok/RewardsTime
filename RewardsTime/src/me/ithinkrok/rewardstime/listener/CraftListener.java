@@ -1,5 +1,6 @@
 package me.ithinkrok.rewardstime.listener;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import me.ithinkrok.rewardstime.RewardsTime;
@@ -35,14 +36,16 @@ public class CraftListener implements Listener {
 		int itemAmount = 0;
 		if(slotAmount == 0) return;
 		
+		plugin.getLogger().info(Arrays.toString(event.getInventory().getMatrix()));
+		
 		if(event.isShiftClick()){
+			int maxCraft = plugin.getCraftAmount(event.getInventory().getMatrix());
+			ItemStack toFit = event.getCurrentItem().clone();
+			toFit.setAmount(slotAmount * maxCraft);
+			itemAmount = plugin.getFittingAmount(toFit, player.getInventory());
+			itemAmount = (itemAmount / slotAmount) * slotAmount;
+		} else if(event.getHotbarButton() != -1){
 			itemAmount = plugin.getFittingAmount(event.getCurrentItem(), player.getInventory());
-		} else if(event.isRightClick()){
-			if(player.getItemOnCursor().getType() == Material.AIR){
-				itemAmount = (int) Math.ceil(slotAmount / 2d);
-			} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
-				itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
-			} else return;
 		} else if(player.getItemOnCursor().getType() == Material.AIR){
 			itemAmount = slotAmount;
 		} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
@@ -99,6 +102,12 @@ public class CraftListener implements Listener {
 		if(slotAmount == 0) return;
 		if(event.isShiftClick() || event.getHotbarButton() != -1){
 			itemAmount = plugin.getFittingAmount(event.getCurrentItem(), player.getInventory());
+		} else if(event.isRightClick()){
+			if(player.getItemOnCursor().getType() == Material.AIR){
+				itemAmount = (int) Math.ceil(slotAmount / 2d);
+			} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
+				itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
+			} else return;
 		} else if(player.getItemOnCursor().getType() == Material.AIR){
 			itemAmount = slotAmount;
 		} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){

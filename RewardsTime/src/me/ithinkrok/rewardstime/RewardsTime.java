@@ -18,8 +18,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.*;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -693,6 +692,15 @@ public class RewardsTime extends JavaPlugin {
 		for(ItemStack item : items){
 			loc.getWorld().dropItemNaturally(loc, item);
 		}
+	}
+	
+	public int getCraftAmount(ItemStack[] matrix){
+		int min = 64;
+		for(int d = 0; d < matrix.length; ++d){
+			if(matrix[d] == null || matrix[d].getType() == Material.AIR || matrix[d].getAmount() < 1) continue;
+			if(matrix[d].getAmount() < min) min = matrix[d].getAmount();
+		}
+		return min;
 	}
 	
 	public Collection<ItemStack> computeDrops(String dropsStr, int mult){
