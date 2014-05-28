@@ -74,10 +74,16 @@ public class CraftListener implements Listener {
 		});
 		
 		
-		player.giveExp(itemAmount * plugin.getConfig().getInt(base + ".exp", 0));
+		player.giveExp(itemAmount * plugin.config.getInt(base + ".exp", 0));
 		
-		String perms = plugin.getConfig().getString(base + ".perms");
+		String perms = plugin.config.getString(base + ".perms");
 		plugin.givePermissions(player, perms);
+		
+		String bc = plugin.config.getString(base + ".broadcast");
+		plugin.broadcast(bc, player.getName(), amount);
+		
+		String tell = plugin.config.getString(base + ".tell");
+		plugin.tell(tell, player, amount);
 		
 		if(amount == 0) return;
 		if(amount > 0){
@@ -140,10 +146,16 @@ public class CraftListener implements Listener {
 		});
 		
 		
-		player.giveExp(itemAmount * plugin.getConfig().getInt(base + ".exp", 0));
+		player.giveExp(itemAmount * plugin.config.getInt(base + ".exp", 0));
 		
-		String perms = plugin.getConfig().getString(base + ".perms");
+		String perms = plugin.config.getString(base + ".perms");
 		plugin.givePermissions(player, perms);
+		
+		String bc = plugin.config.getString(base + ".broadcast");
+		plugin.broadcast(bc, player.getName(), amount);
+		
+		String tell = plugin.config.getString(base + ".tell");
+		plugin.tell(tell, player, amount);
 		
 		if(amount == 0) return;
 		if(amount > 0){

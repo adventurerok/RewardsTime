@@ -786,14 +786,23 @@ public class RewardsTime extends JavaPlugin {
 				add = false;
 				p = p.substring(1);
 			}
-			permsApi.setPermission(player, p, add);
+			if(!permsApi.setPermission(player, p, add)){
+				getLogger().info("Failed to give perm: " + p);
+			}
 		}
 	}
 	
 	public void broadcast(String msg, String player, double money){
-		if(msg == null) return;
-		msg = msg.replace("<player>", player).replace("<money>", Double.toString(money));
+		if(msg == null || msg.isEmpty()) return;
+		msg = msg.replace("<player>", player).replace("<money>", numberFormat.format(money));
 		msg = msg.replace("&", "§");
 		Bukkit.broadcastMessage(title + msg);
+	}
+	
+	public void tell(String msg, Player player, double money){
+		if(msg == null || msg.isEmpty()) return;
+		msg = msg.replace("<player>", player.getName()).replace("<money>", numberFormat.format(money));
+		msg = msg.replace("&", "§");
+		player.sendMessage(title + msg);
 	}
 }

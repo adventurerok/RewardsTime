@@ -57,15 +57,15 @@ public class VotifierListener implements Listener {
 		
 	}
 	
-	public boolean rewardPlayer(OfflinePlayer voter, String reward){
-		double amount = plugin.config.getDouble(reward + ".money", 0);
+	public boolean rewardPlayer(OfflinePlayer voter, String base){
+		double amount = plugin.config.getDouble(base + ".money", 0);
 		if(amount == 0) return false;
 		
 		plugin.economyDeposit(voter, amount);
-		plugin.broadcast(plugin.config.getString(reward + ".broadcast", ""), voter.getName(), amount);
-		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(reward + ".items"), 1);
-		int xp = plugin.config.getInt(reward + ".exp", 0);
-		String perms = plugin.config.getString(reward + ".perms", "");
+		plugin.broadcast(plugin.config.getString(base + ".broadcast", ""), voter.getName(), amount);
+		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), 1);
+		int xp = plugin.config.getInt(base + ".exp", 0);
+		String perms = plugin.config.getString(base + ".perms", "");
 		
 		if(voter.getPlayer() == null){
 			if(!items.isEmpty() || xp != 0 || (perms != null && !perms.isEmpty())){
@@ -77,6 +77,9 @@ public class VotifierListener implements Listener {
 		plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
 		player.giveExp(xp);
 		plugin.givePermissions(player, perms);
+		
+		String tell = plugin.config.getString(base + ".tell");
+		plugin.tell(tell, player, amount);
 		
 		return true;
 	}

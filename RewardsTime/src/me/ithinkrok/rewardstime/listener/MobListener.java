@@ -6,8 +6,7 @@ import java.util.Map.Entry;
 import me.ithinkrok.rewardstime.*;
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -40,14 +39,14 @@ public class MobListener implements Listener {
 	public void changeDrops(EntityDeathEvent event){
 		if(!plugin.mobRewards) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
-		String str = "mob." + entName;
-		String dropsStr = plugin.config.getString(str + ".items");
+		String base = "mob." + entName;
+		String dropsStr = plugin.config.getString(base + ".items");
 		for(ItemStack item : plugin.computeDrops(dropsStr, 1)){
 			event.getDrops().add(item);
 		}
 		
 		if(event.getDroppedExp() == 0) return;
-		int exp = plugin.config.getInt(str + ".exp", 0);
+		int exp = plugin.config.getInt(base + ".exp", 0);
 		event.setDroppedExp(event.getDroppedExp() + exp);
 	}
 
@@ -57,8 +56,8 @@ public class MobListener implements Listener {
 		DamageData damages = plugin.entityDamageData.remove(event.getEntity().getUniqueId());
 		if(damages == null) return;
 		String entName = event.getEntity().getType().toString().toLowerCase();
-		double amount = plugin.config.getDouble("mob." + entName + ".money", 0);
-		if(amount == 0) return;
+		String base = "mob." + entName;
+		double amount = plugin.config.getDouble(base + ".money", 0);
 		double amountStart = amount;
 		if(amount > 0){
 			if(plugin.mobArmorBonus){
@@ -95,16 +94,33 @@ public class MobListener implements Listener {
 			loss = - amountStart;
 		}
 		
-		String perms = plugin.getConfig().getString("mob." + entName + ".perms");
+		String perms = plugin.config.getString(base + ".perms");
+		
+		String tell = plugin.config.getString(base + ".tell");
 		
 		HashMap<UUID, Double> rewards = damages.getResult();
+		ArrayList<String> killers = new ArrayList<>();
 		for(Entry<UUID, Double> entry : rewards.entrySet()){
+			OfflinePlayer offline = Bukkit.getOfflinePlayer(entry.getKey());
+			killers.add(offline.getName());
 			double mult = entry.getValue();
-			plugin.playerReward(Bukkit.getOfflinePlayer(entry.getKey()), gain * mult, bonus * mult, loss * mult);
+			if(amount != 0) plugin.playerReward(offline, gain * mult, bonus * mult, loss * mult);
 			Player player = Bukkit.getPlayer(entry.getKey());
 			if(player == null) continue;
+			plugin.tell(tell, player, amount * mult);
 			plugin.givePermissions(player, perms);
 		}
+		
+		
+		StringBuilder killString = new StringBuilder();
+		for(int d = 0; d < killers.size(); ++d){
+			if(d == 0) killString.append(killers.get(d));
+			else if(d == killers.size() - 1) killString.append(" and ").append(killers.get(d));
+			else killString.append(", ").append(killers.get(d));
+		}
+		
+		String bc = plugin.config.getString("mob." + entName + ".broadcast");
+		plugin.broadcast(bc, killString.toString(), amount);
 		
 	}
 	

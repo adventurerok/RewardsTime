@@ -73,9 +73,14 @@ public class MineListener implements Listener {
 			xp.setExperience(exp);
 		}
 		
-		String perms = plugin.getConfig().getString(base + ".perms");
+		String perms = plugin.config.getString(base + ".perms");
 		plugin.givePermissions(event.getPlayer(), perms);
 		
+		String bc = plugin.config.getString(base + ".broadcast");
+		plugin.broadcast(bc, event.getPlayer().getName(), amount);
+		
+		String tell = plugin.config.getString(base + ".tell");
+		plugin.tell(tell, event.getPlayer(), amount);
 		
 		if(amount == 0) return;
 		if(amount > 0){
