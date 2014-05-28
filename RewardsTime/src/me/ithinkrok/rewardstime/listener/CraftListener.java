@@ -80,8 +80,7 @@ public class CraftListener implements Listener {
 			} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
 				itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
 			} else return;
-		}
-		if(player.getItemOnCursor().getType() == Material.AIR){
+		} else if(player.getItemOnCursor().getType() == Material.AIR){
 			itemAmount = slotAmount;
 		} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
 			itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
