@@ -4,10 +4,11 @@ import java.util.Collection;
 
 import me.ithinkrok.rewardstime.RewardsTime;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
-import org.bukkit.event.inventory.CraftItemEvent;
-import org.bukkit.event.inventory.FurnaceExtractEvent;
+import org.bukkit.event.inventory.*;
+import org.bukkit.event.inventory.InventoryType.SlotType;
 import org.bukkit.inventory.ItemStack;
 
 public class CraftListener implements Listener {
@@ -32,7 +33,11 @@ public class CraftListener implements Listener {
 		if(plugin.config.contains(withMeta)){
 			amount = plugin.config.getDouble(withMeta);
 		}
+		
+		//event.getCurrentItem().getAmount() is broken as it returns number of items shown in results slot
 		amount *= event.getCurrentItem().getAmount();
+		
+		event.getCurrentItem();
 		
 		String dropsStr = plugin.config.getString("craft." + item + ".items");
 		for(int d = 0; d < event.getCurrentItem().getAmount(); ++d){
@@ -49,28 +54,55 @@ public class CraftListener implements Listener {
 			plugin.playerReward(player, 0, 0, -amount);
 		}
 		
+		
+		
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
-	public void onSmeltItem(FurnaceExtractEvent event){
+	public void onInventoryClick(InventoryClickEvent event){
 		if(!plugin.smeltRewards) return;
-		if(!plugin.enabledGameModes.get(event.getPlayer().getGameMode())) return;
-		String item = event.getItemType().toString().toLowerCase();
-		Player player = event.getPlayer();
+		if(event.getInventory().getType() != InventoryType.FURNACE) return;
+		if(event.getWhoClicked() == null || !(event.getWhoClicked() instanceof Player)) return;
+		if(event.getSlotType() != SlotType.RESULT) return;
+		Player player = (Player) event.getWhoClicked();
+		if(!plugin.enabledGameModes.get(player.getGameMode())) return;
+		
+		int playerAmount = player.getItemOnCursor().getAmount();
+		int slotAmount = event.getCurrentItem().getAmount();
+		int itemAmount = 0;
+		if(slotAmount == 0) return;
+		
+		if(event.isShiftClick()){
+			itemAmount = plugin.getFittingAmount(event.getCurrentItem(), player.getInventory());
+		} else if(event.isRightClick()){
+			if(player.getItemOnCursor().getType() == Material.AIR){
+				itemAmount = (int) Math.ceil(slotAmount / 2d);
+			} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
+				itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
+			} else return;
+		}
+		if(player.getItemOnCursor().getType() == Material.AIR){
+			itemAmount = slotAmount;
+		} else if(player.getItemOnCursor().isSimilar(event.getCurrentItem())){
+			itemAmount = Math.min(slotAmount, event.getCurrentItem().getMaxStackSize() - playerAmount);
+		}
+		
+		String item = event.getCurrentItem().getType().toString().toLowerCase();
 		double amount = plugin.config.getDouble("smelt." + item + ".money", 0);
-//		String withMeta = "smelt." + item + "/" + event.get +".money"; //(cannot get item meta)
-//		if(plugin.config.contains(withMeta)){
-//			amount = plugin.config.getDouble(withMeta);
-//		}
-		amount *= event.getItemAmount();
+		String withMeta = "smelt." + item + "/" + event.getCurrentItem().getDurability() +".money";
+		if(plugin.config.contains(withMeta)){
+			amount = plugin.config.getDouble(withMeta);
+		}
+		amount *= itemAmount;
 		
 		String dropsStr = plugin.config.getString("smelt." + item + ".items");
-		for(int d = 0; d < event.getItemAmount(); ++d){
+		for(int d = 0; d < itemAmount; ++d){
 			Collection<ItemStack> result = plugin.computeDrops(dropsStr);
 			plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
 		}
 		
-		player.giveExp(event.getItemAmount() * plugin.getConfig().getInt("smelt." + item + ".exp", 0));
+		
+		player.giveExp(itemAmount * plugin.getConfig().getInt("smelt." + item + ".exp", 0));
 		
 		if(amount == 0) return;
 		if(amount > 0){
@@ -78,7 +110,8 @@ public class CraftListener implements Listener {
 		} else if(amount < 0){
 			plugin.playerReward(player, 0, 0, -amount);
 		}
-		
 	}
+	
+
 	
 }

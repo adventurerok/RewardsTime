@@ -60,6 +60,7 @@ public class MineListener implements Listener {
 			}
 		}
 		
+		
 		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString("block." + item + ".items"));
 		plugin.dropItems(event.getBlock().getLocation(), items.toArray(new ItemStack[items.size()]));
 		

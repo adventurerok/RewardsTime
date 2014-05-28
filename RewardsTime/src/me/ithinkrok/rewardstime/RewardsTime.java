@@ -18,6 +18,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
@@ -722,5 +723,27 @@ public class RewardsTime extends JavaPlugin {
 			} catch(NumberFormatException e){}
 		}
 		return result;
+	}
+	
+	public int getFittingAmount(ItemStack fit, Inventory inv){
+		int toFit = fit.getAmount();
+		for(int d = 0; d < 36; ++d){
+			if(toFit < 1) return 0;
+			ItemStack slot = inv.getItem(d);
+			if(slot.getType() == Material.AIR){
+				int amt = Math.min(toFit, fit.getMaxStackSize());
+				ItemStack in = fit.clone();
+				in.setAmount(amt);
+				inv.setItem(d, in);
+				toFit -= amt;
+			} else if(slot.isSimilar(fit)){
+				int amt = Math.min(toFit, fit.getMaxStackSize() - slot.getAmount());
+				ItemStack in = fit.clone();
+				in.setAmount(amt);
+				inv.setItem(d, in);
+				toFit -= amt;
+			}
+		}
+		return toFit;
 	}
 }
