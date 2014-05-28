@@ -33,10 +33,12 @@ public class MineListener implements Listener {
 		if(!plugin.enabledGameModes.get(event.getPlayer().getGameMode())) return;
 		String item = event.getBlock().getType().toString().toLowerCase();
 		int data = event.getBlock().getData();
-		double amount = plugin.config.getDouble("block." + item + ".money", 0);
-		String withMeta = "block." + item + "/" + data + ".money";
+		String base = "block." + item;
+		double amount = plugin.config.getDouble(base + ".money", 0);
+		String withMeta = base + "/" + data;
 		if(plugin.config.contains(withMeta)){
-			amount = plugin.config.getDouble(withMeta);
+			amount = plugin.config.getDouble(withMeta + ".money");
+			base = withMeta;
 		}
 		Collection<ItemStack> drops =event.getBlock().getDrops(event.getPlayer().getItemInHand());
 		for(ItemStack i : drops){
@@ -61,10 +63,10 @@ public class MineListener implements Listener {
 		}
 		
 		
-		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString("block." + item + ".items"), 1);
+		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), 1);
 		plugin.dropItems(event.getBlock().getLocation(), items.toArray(new ItemStack[items.size()]));
 		
-		int exp = plugin.config.getInt("block." + item + ".exp", 0);
+		int exp = plugin.config.getInt(base + ".exp", 0);
 		if(exp > 0){
 			ExperienceOrb xp = (ExperienceOrb) event.getBlock().getLocation().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.EXPERIENCE_ORB);
 			xp.setExperience(exp);

@@ -1,6 +1,5 @@
 package me.ithinkrok.rewardstime.listener;
 
-import java.util.Arrays;
 import java.util.Collection;
 
 import me.ithinkrok.rewardstime.RewardsTime;
@@ -35,8 +34,6 @@ public class CraftListener implements Listener {
 		int slotAmount = event.getCurrentItem().getAmount();
 		int itemAmount = 0;
 		if(slotAmount == 0) return;
-		
-		plugin.getLogger().info(Arrays.toString(event.getInventory().getMatrix()));
 		
 		if(event.isShiftClick()){
 			int maxCraft = plugin.getCraftAmount(event.getInventory().getMatrix());
