@@ -732,15 +732,9 @@ public class RewardsTime extends JavaPlugin {
 			ItemStack slot = inv.getItem(d);
 			if(slot == null || slot.getType() == Material.AIR){
 				int amt = Math.min(toFit, fit.getMaxStackSize());
-				ItemStack in = fit.clone();
-				in.setAmount(amt);
-				inv.setItem(d, in);
 				toFit -= amt;
 			} else if(slot.isSimilar(fit)){
 				int amt = Math.min(toFit, fit.getMaxStackSize() - slot.getAmount());
-				ItemStack in = fit.clone();
-				in.setAmount(amt);
-				inv.setItem(d, in);
 				toFit -= amt;
 			}
 		}
