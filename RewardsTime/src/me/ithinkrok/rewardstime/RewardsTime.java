@@ -147,7 +147,7 @@ public class RewardsTime extends JavaPlugin {
 			}
 		}, voteSaveMinutes * 1200, voteSaveMinutes * 1200);
 		
-		if(config.getBoolean("metrics")){
+		if(config.getBoolean("metrics", true)){
 			try {
 			    Metrics metrics = new Metrics(this);
 			    metrics.start();
