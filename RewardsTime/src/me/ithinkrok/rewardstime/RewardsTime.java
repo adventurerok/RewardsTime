@@ -72,6 +72,9 @@ public class RewardsTime extends JavaPlugin {
 	public boolean blockRewards = true;
 	public boolean voteRewards = true;
 	public boolean rewardCreative = false;
+	
+	public boolean mobLootingBonus = true;
+	
 	public FileConfiguration config;
 
 	public EnumMap<GameMode, Boolean> enabledGameModes = new EnumMap<>(GameMode.class);
@@ -227,7 +230,7 @@ public class RewardsTime extends JavaPlugin {
 		mobArmorBonus = config.getBoolean("bonus.mobarmor", true);
 		toolBonus = config.getBoolean("bonus.tool", true);
 
-		rewardCreative = config.getBoolean("rewardcreative", false);
+		mobLootingBonus = config.getBoolean("moblootingbonus", true);
 
 		armorMaterial.clear();
 		armorMaterial.put(ArmorMaterial.DIAMOND, loadBonus("mobarmor.material.diamond"));

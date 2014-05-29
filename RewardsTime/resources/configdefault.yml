@@ -25,6 +25,9 @@ gamemodes:
     creative: false
     adventure: true
 
+#Enable the looting enchantment increasing drop chances for mob drops
+moblootingbonus: true
+    
 #Number of seconds to wait before notifying players of their gains    
 rewardtime: 300
 

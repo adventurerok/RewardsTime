@@ -44,7 +44,7 @@ public class MobListener implements Listener {
 		String dropsStr = plugin.config.getString(base + ".items");
 		
 		int add = 0;
-		if(event.getEntity().getKiller() != null){
+		if(plugin.mobLootingBonus && event.getEntity().getKiller() != null){
 			Player killer = event.getEntity().getKiller();
 			if(killer.getItemInHand() != null && killer.getItemInHand().getType() != Material.AIR){
 				add = killer.getItemInHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
