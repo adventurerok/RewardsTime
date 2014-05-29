@@ -31,5 +31,10 @@ public class VaultPermissions implements IVaultPermissions {
 		}
 		return (permission != null);
 	}
+	
+	@Override
+	public boolean enabled() {
+		return permission != null;
+	}
 
 }

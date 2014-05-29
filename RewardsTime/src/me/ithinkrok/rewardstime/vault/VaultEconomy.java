@@ -40,4 +40,9 @@ public class VaultEconomy implements IVaultEconomy{
 		
 	}
 
+	@Override
+	public boolean enabled() {
+		return economy != null;
+	}
+
 }

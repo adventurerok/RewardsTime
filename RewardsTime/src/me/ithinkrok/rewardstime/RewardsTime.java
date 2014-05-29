@@ -120,7 +120,9 @@ public class RewardsTime extends JavaPlugin {
 		
 		if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
 			ecoApi = new VaultEconomy();
+			if(!ecoApi.enabled()) ecoApi = null;
 			permsApi = new VaultPermissions();
+			if(!permsApi.enabled()) permsApi = null;
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
 			new VotifierApi().createListener(this);
@@ -367,17 +369,17 @@ public class RewardsTime extends JavaPlugin {
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 		if (command.getName().equalsIgnoreCase("rewardstime")) {
 			if (args.length < 1) {
-				sender.sendMessage("RewardsTime commands: ");
-				if(sender.hasPermission("rewardstime.reload"))sender.sendMessage("- /rewardstime reload : Reloads the config");
+				sender.sendMessage(title + "RewardsTime commands: ");
+				if(sender.hasPermission("rewardstime.reload"))sender.sendMessage(ChatColor.GOLD + "/rewardstime reload" + white + ": Reloads the config");
 				if(sender.hasPermission("rewardstime.set")){
-					sender.sendMessage("- /rewardstime field <type> <item/mob name> <field> [newvalue]");
-					sender.sendMessage("- /rewardstime config <field> [newvalue]");
+					sender.sendMessage(ChatColor.GOLD + "/rewardstime field" + white + ": Gets/sets a field in the config");
+					sender.sendMessage(ChatColor.GOLD + "/rewardstime config" + white + ": Gets/sets anything in the config");
 				} else if(sender.hasPermission("rewardstime.get")){
-					sender.sendMessage("- /rewardstime field <type> <item/mob name> <field>");
-					sender.sendMessage("- /rewardstime config <field>");
+					sender.sendMessage(ChatColor.GOLD + "/rewardstime field" + white + ": Gets a field in the config");
+					sender.sendMessage(ChatColor.GOLD + "/rewardstime config" + white + ": Gets anything in the config");
 				}
 				if(sender instanceof Player && sender.hasPermission("rewardstime.rewards")){
-					sender.sendMessage("/rewardstime rewards");
+					sender.sendMessage(ChatColor.GOLD + "/rewardstime rewards" + white + ": View your recent rewards");
 				}
 				
 				return true;

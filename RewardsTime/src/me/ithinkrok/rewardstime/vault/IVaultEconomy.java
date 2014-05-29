@@ -9,4 +9,6 @@ public interface IVaultEconomy {
 	
 	public void disable();
 	
+	public boolean enabled();
+	
 }
