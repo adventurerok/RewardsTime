@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
 import me.ithinkrok.rewardstime.listener.*;
+import me.ithinkrok.rewardstime.metrics.Metrics;
 import me.ithinkrok.rewardstime.vault.*;
 import me.ithinkrok.rewardstime.votifier.VotifierApi;
 
@@ -145,6 +146,15 @@ public class RewardsTime extends JavaPlugin {
 
 			}
 		}, voteSaveMinutes * 1200, voteSaveMinutes * 1200);
+		
+		if(config.getBoolean("metrics")){
+			try {
+			    Metrics metrics = new Metrics(this);
+			    metrics.start();
+			} catch (IOException e) {
+			    // Failed to submit the stats :-(
+			}
+		}
 	}
 
 	public void checkDamageTimeout() {

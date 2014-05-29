@@ -3,6 +3,9 @@
 #Log extra details
 log: false
 
+#Enable metrics
+metrics: true
+
 #Enable rewards for different activities
 rewards:
     craft: true
