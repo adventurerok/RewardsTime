@@ -7,6 +7,7 @@ import me.ithinkrok.rewardstime.*;
 import me.ithinkrok.rewardstime.RewardsTime.ArmorType;
 
 import org.bukkit.*;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -41,7 +42,16 @@ public class MobListener implements Listener {
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		String base = "mob." + entName;
 		String dropsStr = plugin.config.getString(base + ".items");
-		for(ItemStack item : plugin.computeDrops(dropsStr, 1)){
+		
+		int add = 0;
+		if(event.getEntity().getKiller() != null){
+			Player killer = event.getEntity().getKiller();
+			if(killer.getItemInHand() != null && killer.getItemInHand().getType() != Material.AIR){
+				add = killer.getItemInHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
+			}
+		}
+		
+		for(ItemStack item : plugin.computeDrops(dropsStr, 1, add)){
 			event.getDrops().add(item);
 		}
 		

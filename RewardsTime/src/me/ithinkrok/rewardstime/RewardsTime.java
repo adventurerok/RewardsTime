@@ -743,6 +743,11 @@ public class RewardsTime extends JavaPlugin {
 	}
 	
 	public Collection<ItemStack> computeDrops(String dropsStr, int mult){
+		return computeDrops(dropsStr, mult, 0);
+	}
+	
+	
+	public Collection<ItemStack> computeDrops(String dropsStr, int mult, int add){
 		ArrayList<ItemStack> result = new ArrayList<>();
 		if(dropsStr == null || dropsStr.isEmpty()) return result;
 		String dropParts[] = dropsStr.split(",");
@@ -754,7 +759,7 @@ public class RewardsTime extends JavaPlugin {
 				if(mat == null || mat == Material.AIR) continue;
 				int metadata = 0;
 				if(sections[1] != null && !sections[1].isEmpty()) metadata = Integer.parseInt(sections[1]);
-				int maxamount = Integer.parseInt(sections[2]) * mult;
+				int maxamount = (Integer.parseInt(sections[2]) + add) * mult;
 				double percent = Double.parseDouble(sections[3]) / 100d;
 				if(percent > 1) percent = 1;
 				else if(percent <= 0) continue;
