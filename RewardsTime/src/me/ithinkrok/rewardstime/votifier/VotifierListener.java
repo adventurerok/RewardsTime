@@ -58,10 +58,13 @@ public class VotifierListener implements Listener {
 	}
 	
 	public boolean rewardPlayer(OfflinePlayer voter, String base){
+		if(!plugin.config.contains(base)) return false;
 		double amount = plugin.config.getDouble(base + ".money", 0);
-		if(amount == 0) return false;
+		if(voter.getPlayer() != null){
+			amount *= plugin.getPlayerMoneyPerk(voter.getPlayer());
+		}
 		
-		plugin.economyDeposit(voter, amount);
+		if(amount > 0) plugin.economyDeposit(voter, amount);
 		plugin.broadcast(plugin.config.getString(base + ".broadcast", ""), voter.getName(), amount);
 		int xp = plugin.config.getInt(base + ".exp", 0);
 		String perms = plugin.config.getString(base + ".perms", "");
