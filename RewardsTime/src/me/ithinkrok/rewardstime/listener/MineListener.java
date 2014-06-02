@@ -30,7 +30,7 @@ public class MineListener implements Listener {
 		if(event.isCancelled()) return;
 		if(!plugin.blockRewards) return;
 		if(event.getPlayer() == null) return;
-		if(!event.getPlayer().hasPermission("rewardstime.rewards")) return;
+		if(!event.getPlayer().hasPermission("rewardstime.rewards.from.block")) return;
 		if(!plugin.enabledGameModes.get(event.getPlayer().getGameMode())) return;
 		String item = event.getBlock().getType().toString().toLowerCase();
 		int data = event.getBlock().getData();
@@ -63,26 +63,36 @@ public class MineListener implements Listener {
 			}
 		}
 		
-		
-		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), 1);
-		plugin.dropItems(event.getBlock().getLocation(), items.toArray(new ItemStack[items.size()]));
-		
-		int exp = plugin.config.getInt(base + ".exp", 0);
-		if(exp > 0){
-			ExperienceOrb xp = (ExperienceOrb) event.getBlock().getLocation().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.EXPERIENCE_ORB);
-			xp.setExperience(exp);
+		if(event.getPlayer().hasPermission("rewardstime.rewards.type.items")){
+			Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), (int)plugin.getPlayerItemPerk(event.getPlayer()));
+			plugin.dropItems(event.getBlock().getLocation(), items.toArray(new ItemStack[items.size()]));
 		}
 		
-		String perms = plugin.config.getString(base + ".perms");
-		plugin.givePermissions(event.getPlayer(), perms);
+		if(event.getPlayer().hasPermission("rewardstime.rewards.type.exp")){
+			int exp = (int) (plugin.config.getInt(base + ".exp", 0) * plugin.getPlayerExpPerk(event.getPlayer()));
+			if(exp > 0){
+				ExperienceOrb xp = (ExperienceOrb) event.getBlock().getLocation().getWorld().spawnEntity(event.getBlock().getLocation(), EntityType.EXPERIENCE_ORB);
+				xp.setExperience(exp);
+			}
+		}
 		
-		String bc = plugin.config.getString(base + ".broadcast");
-		plugin.broadcast(bc, event.getPlayer().getName(), amount);
+		if(event.getPlayer().hasPermission("rewardstime.rewards.type.perms")){
+			String perms = plugin.config.getString(base + ".perms");
+			plugin.givePermissions(event.getPlayer(), perms);
+		}
 		
-		String tell = plugin.config.getString(base + ".tell");
-		plugin.tell(tell, event.getPlayer(), amount);
+		if(event.getPlayer().hasPermission("rewardstime.rewards.type.broadcast")){
+			String bc = plugin.config.getString(base + ".broadcast");
+			plugin.broadcast(bc, event.getPlayer().getName(), amount);
+		}
 		
-		if(amount == 0) return;
+		if(event.getPlayer().hasPermission("rewardstime.rewards.type.tell")){
+			String tell = plugin.config.getString(base + ".tell");
+			plugin.tell(tell, event.getPlayer(), amount);
+		}
+		
+		if(amount == 0 || !event.getPlayer().hasPermission("rewardstime.rewards.type.money")) return;
+		amount *= plugin.getPlayerMoneyPerk(event.getPlayer());
 		if(amount > 0){
 			plugin.playerReward(event.getPlayer(), amountStart, amount - amountStart, 0);
 		} else if(amount < 0){
