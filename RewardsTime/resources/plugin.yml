@@ -31,19 +31,43 @@ permissions:
     rewardstime.rewards:
         default: true
         children:
-            rewardstime.rewards.items: true
-            rewardstime.rewards.exp: true
-            rewardstime.rewards.money: true
-            rewardstime.rewards.tell: true
-    rewardstime.rewards.items:
+            rewardstime.rewards.type: true
+            rewardstime.rewards.from: true
+    rewardstime.rewards.from:
         default: true
-    rewardstime.rewards.exp:
+        children:
+            rewardstime.rewards.from.mobs: true
+            rewardstime.rewards.from.craft: true
+            rewardstime.rewards.from.smelt: true
+            rewardstime.rewards.from.block: true
+    rewardstime.rewards.from.mobs:
         default: true
-    rewardstime.rewards.money:
+    rewardstime.rewards.from.craft:
         default: true
-    rewardstime.rewards.tell:
+    rewardstime.rewards.from.smelt:
+        default: true:
+    rewardstime.rewards.from.block:
         default: true
-    rewardstime.rewards.broadcast:
+    rewardstime.rewards.type:
+        default: true
+        children:
+            rewardstime.rewards.type.items: true
+            rewardstime.rewards.type.exp: true
+            rewardstime.rewards.type.money: true
+            rewardstime.rewards.type.tell: true
+            rewardstime.rewards.type.broadcast: true
+            rewardstime.rewards.type.perms: true
+    rewardstime.rewards.type.items:
+        default: true
+    rewardstime.rewards.type.exp:
+        default: true
+    rewardstime.rewards.type.money:
+        default: true
+    rewardstime.rewards.type.tell:
+        default: true
+    rewardstime.rewards.type.perms:
+        default: true
+    rewardstime.rewards.type.broadcast:
         default: true
     rewardstime.perks:
         default: false
