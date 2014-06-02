@@ -837,4 +837,34 @@ public class RewardsTime extends JavaPlugin {
 		msg = msg.replace("&", "§");
 		player.sendMessage(title + msg);
 	}
+	
+	public double getPlayerItemPerk(Player player){
+		if(player.hasPermission("rewardstime.perks.fivetimes.items")) return 5d;
+		if(player.hasPermission("rewardstime.perks.fourtimes.items")) return 4d;
+		if(player.hasPermission("rewardstime.perks.threetimes.items")) return 3d;
+		if(player.hasPermission("rewardstime.perks.twopointfivetimes.items")) return 2.5;
+		if(player.hasPermission("rewardstime.perks.twotimes.items")) return 2d;
+		if(player.hasPermission("rewardstime.perks.onepointfivetimes.items")) return 1.5;
+		return 1d;
+	}
+	
+	public double getPlayerExpPerk(Player player){
+		if(player.hasPermission("rewardstime.perks.fivetimes.exp")) return 5d;
+		if(player.hasPermission("rewardstime.perks.fourtimes.exp")) return 4d;
+		if(player.hasPermission("rewardstime.perks.threetimes.exp")) return 3d;
+		if(player.hasPermission("rewardstime.perks.twopointfivetimes.exp")) return 2.5;
+		if(player.hasPermission("rewardstime.perks.twotimes.exp")) return 2d;
+		if(player.hasPermission("rewardstime.perks.onepointfivetimes.exp")) return 1.5;
+		return 1d;
+	}
+	
+	public double getPlayerMoneyPerk(Player player){
+		if(player.hasPermission("rewardstime.perks.fivetimes.money")) return 5d;
+		if(player.hasPermission("rewardstime.perks.fourtimes.money")) return 4d;
+		if(player.hasPermission("rewardstime.perks.threetimes.money")) return 3d;
+		if(player.hasPermission("rewardstime.perks.twopointfivetimes.money")) return 2.5;
+		if(player.hasPermission("rewardstime.perks.twotimes.money")) return 2d;
+		if(player.hasPermission("rewardstime.perks.onepointfivetimes.money")) return 1.5;
+		return 1d;
+	}
 }

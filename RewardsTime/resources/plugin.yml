@@ -35,7 +35,6 @@ permissions:
             rewardstime.rewards.exp: true
             rewardstime.rewards.money: true
             rewardstime.rewards.tell: true
-            rewardstime.rewards.broadcast: true
     rewardstime.rewards.items:
         default: true
     rewardstime.rewards.exp:
