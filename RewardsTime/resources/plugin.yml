@@ -40,6 +40,9 @@ permissions:
             rewardstime.rewards.from.craft: true
             rewardstime.rewards.from.smelt: true
             rewardstime.rewards.from.block: true
+            rewardstime.rewards.from.vote: true
+    rewardstime.rewards.from.vote:
+        default: true
     rewardstime.rewards.from.mobs:
         default: true
     rewardstime.rewards.from.craft:

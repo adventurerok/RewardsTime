@@ -39,25 +39,29 @@ public class MobListener implements Listener {
 	@EventHandler(priority = EventPriority.HIGHEST)
 	public void changeDrops(EntityDeathEvent event){
 		if(!plugin.mobRewards) return;
+		Player killer = event.getEntity().getKiller();
 		String entName = event.getEntity().getType().toString().toLowerCase();
 		String base = "mob." + entName;
 		String dropsStr = plugin.config.getString(base + ".items");
 		
 		int add = 0;
-		if(plugin.mobLootingBonus && event.getEntity().getKiller() != null){
-			Player killer = event.getEntity().getKiller();
+		if(plugin.mobLootingBonus && killer != null){
 			if(killer.getItemInHand() != null && killer.getItemInHand().getType() != Material.AIR){
 				add = killer.getItemInHand().getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS);
 			}
 		}
 		
-		for(ItemStack item : plugin.computeDrops(dropsStr, 1, add)){
+		int dMult = 1;
+		if(killer != null) dMult = (int) plugin.getPlayerItemPerk(killer);
+		for(ItemStack item : plugin.computeDrops(dropsStr, dMult, add)){
 			event.getDrops().add(item);
 		}
 		
-		if(event.getDroppedExp() == 0) return;
-		int exp = plugin.config.getInt(base + ".exp", 0);
-		event.setDroppedExp(event.getDroppedExp() + exp);
+		if(plugin.config.contains(base + ".exp")){
+			int exp = plugin.config.getInt(base + ".exp", 0);
+			if(killer != null) exp *= plugin.getPlayerExpPerk(killer);
+			event.setDroppedExp(exp);
+		}
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -112,13 +116,15 @@ public class MobListener implements Listener {
 		ArrayList<String> killers = new ArrayList<>();
 		for(Entry<UUID, Double> entry : rewards.entrySet()){
 			OfflinePlayer offline = Bukkit.getOfflinePlayer(entry.getKey());
-			killers.add(offline.getName());
-			double mult = entry.getValue();
-			if(amount != 0) plugin.playerReward(offline, gain * mult, bonus * mult, loss * mult);
 			Player player = Bukkit.getPlayer(entry.getKey());
+			double mult = entry.getValue();
+			if(player != null) mult *= plugin.getPlayerMoneyPerk(player);
+			if(amount != 0) plugin.playerReward(offline, gain * mult, bonus * mult, loss * mult);
+			
 			if(player == null) continue;
-			plugin.tell(tell, player, amount * mult);
-			plugin.givePermissions(player, perms);
+			if(!player.hasPermission("rewardstime.rewards.from.mobs")) continue;
+			if(player.hasPermission("rewardstime.rewards.type.tell")) plugin.tell(tell, player, amount * mult);
+			if(player.hasPermission("rewardstime.rewards.type.perms")) plugin.givePermissions(player, perms);
 		}
 		
 		

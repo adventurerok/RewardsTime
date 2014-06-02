@@ -63,23 +63,35 @@ public class VotifierListener implements Listener {
 		
 		plugin.economyDeposit(voter, amount);
 		plugin.broadcast(plugin.config.getString(base + ".broadcast", ""), voter.getName(), amount);
-		Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), 1);
 		int xp = plugin.config.getInt(base + ".exp", 0);
 		String perms = plugin.config.getString(base + ".perms", "");
 		
 		if(voter.getPlayer() == null){
-			if(!items.isEmpty() || xp != 0 || (perms != null && !perms.isEmpty())){
+			if(!plugin.config.contains(base + ".items") || xp != 0 || (perms != null && !perms.isEmpty())){
 				Bukkit.broadcastMessage(plugin.title + ChatColor.RED + voter.getName() + plugin.white + " should have been online to collect an additional reward.");
 			}
 			return true;
 		}
 		Player player = voter.getPlayer();
-		plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
-		player.giveExp(xp);
-		plugin.givePermissions(player, perms);
+		if(!player.hasPermission("rewardstime.rewards.from.vote")) return true;
 		
-		String tell = plugin.config.getString(base + ".tell");
-		plugin.tell(tell, player, amount);
+		if(player.hasPermission("rewardstime.rewards.type.items")){
+			Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), (int)plugin.getPlayerItemPerk(player));
+			plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.exp")){
+			player.giveExp((int) (xp * plugin.getPlayerExpPerk(player)));
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.perms")){
+			plugin.givePermissions(player, perms);
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.tell")){
+			String tell = plugin.config.getString(base + ".tell");
+			plugin.tell(tell, player, amount);
+		}
 		
 		return true;
 	}
