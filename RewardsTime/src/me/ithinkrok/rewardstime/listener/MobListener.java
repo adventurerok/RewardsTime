@@ -61,6 +61,10 @@ public class MobListener implements Listener {
 			int exp = plugin.config.getInt(base + ".exp", 0);
 			if(killer != null) exp *= plugin.getPlayerExpPerk(killer);
 			event.setDroppedExp(exp);
+		} else {
+			int exp = event.getDroppedExp();
+			if(killer != null) exp *= plugin.getPlayerExpPerk(killer);
+			event.setDroppedExp(exp);
 		}
 	}
 
