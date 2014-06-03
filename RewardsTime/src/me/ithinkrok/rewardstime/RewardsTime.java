@@ -488,6 +488,17 @@ public class RewardsTime extends JavaPlugin {
 				Player player = (Player) sender;
 				alertRewards(player);
 				return true;
+			} else if("perks".equalsIgnoreCase(args[0])){
+				if(!(sender instanceof Player)){
+					sender.sendMessage(title + "You must be a player to use /rewardstime rewards");
+					return true;
+				}
+				Player player = (Player) sender;
+				sender.sendMessage(title + "Your perks are: ");
+				sender.sendMessage(title + "Money Multiplier: " + getPlayerMoneyPerk(player));
+				sender.sendMessage(title + "Xp Multiplier: " + getPlayerExpPerk(player));
+				sender.sendMessage(title + "Item Multiplier: " + getPlayerItemPerk(player));
+				return true;
 			}
 			return false;
 		}
