@@ -183,8 +183,9 @@ public class RewardsTime extends JavaPlugin {
 	@Override
 	public void onDisable() {
 		saveVoteCounts();
-		if (ecoApi != null)
-			ecoApi.disable();
+		if (ecoApi != null) ecoApi.disable();
+		if (permsApi != null) permsApi.disable();
+		if (gmApi != null) gmApi.disable();
 	}
 
 	public Object getFieldValue(CommandSender sender, FieldType type, String parse) {
