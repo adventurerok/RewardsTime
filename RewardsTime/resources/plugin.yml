@@ -48,7 +48,7 @@ permissions:
     rewardstime.rewards.from.craft:
         default: true
     rewardstime.rewards.from.smelt:
-        default: true:
+        default: true
     rewardstime.rewards.from.block:
         default: true
     rewardstime.rewards.type:
