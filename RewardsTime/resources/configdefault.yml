@@ -142,15 +142,18 @@ mob:
     creeper:
         money: 5
         items: diamond_sword//2/0.05
-        exp: 10
+        exp: 5
     zombie:
         money: 2
+        exp: 5
     chicken:
         money: 1
     skeleton:
         money: 5
+        exp: 5
     spider:
         money: 3
+        exp: 5
     giant:
         money: 25
     slime:

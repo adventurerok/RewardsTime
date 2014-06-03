@@ -21,6 +21,12 @@ public class VaultPermissions implements IVaultPermissions {
 		} else {
 			return permission.playerRemove(player, perm);
 		}
+		
+	}
+	
+	@Override
+	public void addSubGroup(Player player, String group){
+		permission.playerAddGroup(player, group);
 	}
 
 	private boolean setupPermissions() {
@@ -35,6 +41,11 @@ public class VaultPermissions implements IVaultPermissions {
 	@Override
 	public boolean enabled() {
 		return permission != null;
+	}
+
+	@Override
+	public void disable() {
+		permission = null;
 	}
 
 }

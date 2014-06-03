@@ -57,6 +57,7 @@ public class VotifierListener implements Listener {
 		
 	}
 	
+	
 	public boolean rewardPlayer(OfflinePlayer voter, String base){
 		if(!plugin.config.contains(base)) return false;
 		double amount = plugin.config.getDouble(base + ".money", 0);
@@ -70,7 +71,7 @@ public class VotifierListener implements Listener {
 		String perms = plugin.config.getString(base + ".perms", "");
 		
 		if(voter.getPlayer() == null){
-			if(!plugin.config.contains(base + ".items") || xp != 0 || (perms != null && !perms.isEmpty())){
+			if(plugin.config.contains(base + ".subgroups") || plugin.config.contains(base + ".items") || xp != 0 || (perms != null && !perms.isEmpty())){
 				Bukkit.broadcastMessage(plugin.title + ChatColor.RED + voter.getName() + plugin.white + " should have been online to collect an additional reward.");
 			}
 			return true;
@@ -81,6 +82,10 @@ public class VotifierListener implements Listener {
 		if(player.hasPermission("rewardstime.rewards.type.items")){
 			Collection<ItemStack> items = plugin.computeDrops(plugin.config.getString(base + ".items"), (int)plugin.getPlayerItemPerk(player));
 			plugin.givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.subgroups")){
+			plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
 		}
 		
 		if(player.hasPermission("rewardstime.rewards.type.exp")){

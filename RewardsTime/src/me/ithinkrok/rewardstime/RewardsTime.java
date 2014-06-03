@@ -878,4 +878,18 @@ public class RewardsTime extends JavaPlugin {
 		if(player.hasPermission("rewardstime.perks.onepointfivetimes.money")) return 1.5;
 		return 1d;
 	}
+	
+	public void addSubGroup(Player player, String group){
+		if(permsApi == null) return;
+		permsApi.addSubGroup(player, group);
+	}
+	
+	public void givePlayerSubGroups(Player player, String str){
+		if(permsApi == null) return;
+		if(str == null || str.isEmpty()) return;
+		String[] gs = str.split(",");
+		for(String s : gs){
+			addSubGroup(player, s);
+		}
+	}
 }

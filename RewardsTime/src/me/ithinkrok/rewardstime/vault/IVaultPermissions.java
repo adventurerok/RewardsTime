@@ -8,4 +8,8 @@ public interface IVaultPermissions {
 	
 	public boolean enabled();
 	
+	public void addSubGroup(Player player, String group);
+	
+	public void disable();
+	
 }

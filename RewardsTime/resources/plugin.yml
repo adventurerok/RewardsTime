@@ -12,7 +12,7 @@ commands:
         usage: "Unexpected arguments. Type /rewardstime to see options"
 permissions:
     rewardstime.*:
-        default: op
+        default: false
         children:
             rewardstime.command: true
             rewardstime.set: true
@@ -121,35 +121,35 @@ permissions:
         default: false
     rewardstime.perks.fivetimes.exp:
         default: false
-    rewardstime.perks.fiveitems.money:
+    rewardstime.perks.fivetimes.money:
         default: false
     rewardstime.perks.fourtimes.items:
         default: false
     rewardstime.perks.fourtimes.exp:
         default: false
-    rewardstime.perks.fouritems.money:
+    rewardstime.perks.fourtimes.money:
         default: false
     rewardstime.perks.threetimes.items:
         default: false
     rewardstime.perks.threetimes.exp:
         default: false
-    rewardstime.perks.threeitems.money:
+    rewardstime.perks.threetimes.money:
         default: false
     rewardstime.perks.twopointfivetimes.items:
         default: false
     rewardstime.perks.twopointfivetimes.exp:
         default: false
-    rewardstime.perks.twopointfiveitems.money:
+    rewardstime.perks.twopointfivetimes.money:
         default: false
     rewardstime.perks.twotimes.items:
         default: false
     rewardstime.perks.twotimes.exp:
         default: false
-    rewardstime.perks.twoitems.money:
+    rewardstime.perks.twotimes.money:
         default: false
     rewardstime.perks.onepointfivetimes.items:
         default: false
     rewardstime.perks.onepointfivetimes.exp:
         default: false
-    rewardstime.perks.onepointfiveitems.money:
+    rewardstime.perks.onepointfivetimes.money:
         default: false
