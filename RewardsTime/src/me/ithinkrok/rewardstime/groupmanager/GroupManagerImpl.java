@@ -22,7 +22,10 @@ public class GroupManagerImpl implements IGroupManager {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getWorldData(player);
 		User user = world.getUser(player.getName());
 		Group add = world.getGroup(group);
-		if(add == null) return;
+		if(add == null){
+			Bukkit.getLogger().info("[RewardsTime] No group called \"" + group + "\" found");
+			return;
+		}
 		user.addSubGroup(add);
 
 	}

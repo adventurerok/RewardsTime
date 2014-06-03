@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
+import me.ithinkrok.rewardstime.groupmanager.GroupManagerImpl;
+import me.ithinkrok.rewardstime.groupmanager.IGroupManager;
 import me.ithinkrok.rewardstime.listener.*;
 import me.ithinkrok.rewardstime.metrics.Metrics;
 import me.ithinkrok.rewardstime.vault.*;
@@ -38,6 +40,7 @@ public class RewardsTime extends JavaPlugin {
 
 	public IVaultEconomy ecoApi = null;
 	public IVaultPermissions permsApi = null;
+	public IGroupManager gmApi = null;
 
 	public DecimalFormat numberFormat = new DecimalFormat("0.##");
 
@@ -130,6 +133,9 @@ public class RewardsTime extends JavaPlugin {
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
 			new VotifierApi().createListener(this);
+		}
+		if(Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
+			gmApi = new GroupManagerImpl();
 		}
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
@@ -880,6 +886,10 @@ public class RewardsTime extends JavaPlugin {
 	}
 	
 	public void addSubGroup(Player player, String group){
+		if(gmApi != null){
+			gmApi.addSubGroup(player, group);
+			return;
+		}
 		if(permsApi == null) return;
 		permsApi.addSubGroup(player, group);
 	}

@@ -2,7 +2,7 @@ name: "RewardsTime"
 version: "1.3.0"
 author: "ithinkrok"
 main: "me.ithinkrok.rewardstime.RewardsTime"
-softdepend: [Vault, Votifier]
+softdepend: ["Vault", "Votifier", "GroupManager"]
 description: "A plugin for getting rewards from mobs/blocks/crafting/voting"
 commands:
     rewardstime:
