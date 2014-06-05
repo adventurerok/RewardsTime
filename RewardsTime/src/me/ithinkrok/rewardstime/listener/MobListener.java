@@ -129,6 +129,11 @@ public class MobListener implements Listener {
 			if(!player.hasPermission("rewardstime.rewards.from.mobs")) continue;
 			if(player.hasPermission("rewardstime.rewards.type.tell")) plugin.tell(tell, player, amount * mult);
 			if(player.hasPermission("rewardstime.rewards.type.perms")) plugin.givePermissions(player, perms);
+			
+
+			if(player.hasPermission("rewardstime.rewards.type.subgroups")){
+				plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
+			}
 		}
 		
 		

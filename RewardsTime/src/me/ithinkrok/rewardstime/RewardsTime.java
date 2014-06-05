@@ -6,11 +6,11 @@ import java.util.*;
 import java.util.Map.Entry;
 
 import me.ithinkrok.rewardstime.RewardsBonus.BonusType;
-import me.ithinkrok.rewardstime.groupmanager.GroupManagerImpl;
-import me.ithinkrok.rewardstime.groupmanager.IGroupManager;
 import me.ithinkrok.rewardstime.listener.*;
 import me.ithinkrok.rewardstime.metrics.Metrics;
-import me.ithinkrok.rewardstime.vault.*;
+import me.ithinkrok.rewardstime.permissions.*;
+import me.ithinkrok.rewardstime.vault.IVaultEconomy;
+import me.ithinkrok.rewardstime.vault.VaultEconomy;
 import me.ithinkrok.rewardstime.votifier.VotifierApi;
 
 import org.bukkit.*;
@@ -20,7 +20,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.*;
+import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitScheduler;
 
@@ -39,8 +40,7 @@ public class RewardsTime extends JavaPlugin {
 	}
 
 	public IVaultEconomy ecoApi = null;
-	public IVaultPermissions permsApi = null;
-	public IGroupManager gmApi = null;
+	public IPermissions permsApi = null;
 
 	public DecimalFormat numberFormat = new DecimalFormat("0.##");
 
@@ -125,18 +125,27 @@ public class RewardsTime extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(new CraftListener(this), this);
 		getServer().getPluginManager().registerEvents(new MobListener(this), this);
 		
+		if(Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
+			getLogger().info("Found GroupManager. Subgroups will work");
+			permsApi = new GroupManagerPerms();
+		}
+		
 		if (Bukkit.getPluginManager().isPluginEnabled("Vault")) {
 			ecoApi = new VaultEconomy();
 			if(!ecoApi.enabled()) ecoApi = null;
-			permsApi = new VaultPermissions();
-			if(!permsApi.enabled()) permsApi = null;
+			if(permsApi == null){
+				permsApi = new VaultPerms();
+				if(!permsApi.enabled()) permsApi = null;
+			}
 		}
 		if (Bukkit.getPluginManager().isPluginEnabled("Votifier")) {
 			new VotifierApi().createListener(this);
 		}
-		if(Bukkit.getPluginManager().isPluginEnabled("GroupManager")) {
-			gmApi = new GroupManagerImpl();
+		
+		if(permsApi == null){
+			permsApi = new DefaultPerms();
 		}
+		
 		
 		Bukkit.getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 
@@ -185,7 +194,6 @@ public class RewardsTime extends JavaPlugin {
 		saveVoteCounts();
 		if (ecoApi != null) ecoApi.disable();
 		if (permsApi != null) permsApi.disable();
-		if (gmApi != null) gmApi.disable();
 	}
 
 	public Object getFieldValue(CommandSender sender, FieldType type, String parse) {
@@ -886,21 +894,26 @@ public class RewardsTime extends JavaPlugin {
 		return 1d;
 	}
 	
-	public void addSubGroup(Player player, String group){
-		if(gmApi != null){
-			gmApi.addSubGroup(player, group);
-			return;
-		}
-		if(permsApi == null) return;
+	public void addSubGroup(OfflinePlayer player, String group){
+		if(!permsApi.supportsSubGroups()) return;
+		if(!permsApi.supportsOfflinePlayers() && player.getPlayer() == null) return;
 		permsApi.addSubGroup(player, group);
 	}
 	
-	public void givePlayerSubGroups(Player player, String str){
+	public void givePlayerSubGroups(OfflinePlayer player, String str){
 		if(permsApi == null) return;
 		if(str == null || str.isEmpty()) return;
 		String[] gs = str.split(",");
 		for(String s : gs){
 			addSubGroup(player, s);
 		}
+	}
+	
+	public void rewardOfflinePlayer(String base, OfflinePlayer player){
+		
+	}
+	
+	public void rewardOnlinePlayer(String base, Player player){
+		
 	}
 }

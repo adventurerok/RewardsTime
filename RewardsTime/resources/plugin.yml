@@ -60,6 +60,7 @@ permissions:
             rewardstime.rewards.type.tell: true
             rewardstime.rewards.type.broadcast: true
             rewardstime.rewards.type.perms: true
+            rewardstime.rewards.type.subgroups: true
     rewardstime.rewards.type.items:
         default: true
     rewardstime.rewards.type.exp:
@@ -67,6 +68,8 @@ permissions:
     rewardstime.rewards.type.money:
         default: true
     rewardstime.rewards.type.tell:
+        default: true
+    rewardstime.rewards.type.subgroups:
         default: true
     rewardstime.rewards.type.perms:
         default: true

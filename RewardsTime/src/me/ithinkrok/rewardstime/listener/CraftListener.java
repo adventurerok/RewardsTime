@@ -84,6 +84,11 @@ public class CraftListener implements Listener {
 			plugin.givePermissions(player, perms);
 		}
 		
+
+		if(player.hasPermission("rewardstime.rewards.type.subgroups")){
+			plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
+		}
+		
 		if(player.hasPermission("rewardstime.rewards.type.broadcast")){
 			String bc = plugin.config.getString(base + ".broadcast");
 			plugin.broadcast(bc, player.getName(), amount);
@@ -164,6 +169,11 @@ public class CraftListener implements Listener {
 		if(player.hasPermission("rewardstime.rewards.type.perms")){
 			String perms = plugin.config.getString(base + ".perms");
 			plugin.givePermissions(player, perms);
+		}
+		
+
+		if(player.hasPermission("rewardstime.rewards.type.subgroups")){
+			plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
 		}
 		
 		if(player.hasPermission("rewardstime.rewards.type.broadcast")){
