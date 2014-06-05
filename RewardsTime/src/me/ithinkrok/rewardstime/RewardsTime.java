@@ -850,6 +850,24 @@ public class RewardsTime extends JavaPlugin {
 		}
 	}
 	
+	public void givePermissionsOffline(OfflinePlayer player, String perms){
+		if(perms == null || perms.isEmpty()) return;
+		if(permsApi == null) return;
+		String[] parts = perms.split(",");
+		for(String p : parts){
+			boolean add = true;
+			if(p.startsWith("+")){
+				p = p.substring(1);
+			} else if(p.startsWith("-")){
+				add = false;
+				p = p.substring(1);
+			}
+			if(!permsApi.setPermission(player, p, add)){
+				getLogger().info("Failed to give perm: " + p);
+			}
+		}
+	}
+	
 	public void broadcast(String msg, String player, double money){
 		if(msg == null || msg.isEmpty()) return;
 		msg = msg.replace("<player>", player).replace("<money>", numberFormat.format(money));
@@ -894,10 +912,62 @@ public class RewardsTime extends JavaPlugin {
 		return 1d;
 	}
 	
+	public double getOfflinePlayerItemPerk(OfflinePlayer player){
+		if(player.getPlayer() != null) return getPlayerItemPerk(player.getPlayer());
+		if(!permsApi.supportsOfflinePlayers()) return 1;
+		if(permsApi.checkPermission(player, "rewardstime.perks.fivetimes.items")) return 5d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.fourtimes.items")) return 4d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.threetimes.items")) return 3d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.twopointfivetimes.items")) return 2.5;
+		if(permsApi.checkPermission(player, "rewardstime.perks.twotimes.items")) return 2d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.onepointfivetimes.items")) return 1.5;
+		return 1d;
+	}
+	
+	public double getOfflinePlayerExpPerk(OfflinePlayer player){
+		if(player.getPlayer() != null) return getPlayerExpPerk(player.getPlayer());
+		if(!permsApi.supportsOfflinePlayers()) return 1;
+		if(permsApi.checkPermission(player, "rewardstime.perks.fivetimes.exp")) return 5d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.fourtimes.exp")) return 4d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.threetimes.exp")) return 3d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.twopointfivetimes.exp")) return 2.5;
+		if(permsApi.checkPermission(player, "rewardstime.perks.twotimes.exp")) return 2d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.onepointfivetimes.exp")) return 1.5;
+		return 1d;
+	}
+	
+	public double getOfflinePlayerMoneyPerk(OfflinePlayer player){
+		if(player.getPlayer() != null) return getPlayerMoneyPerk(player.getPlayer());
+		if(!permsApi.supportsOfflinePlayers()) return 1;
+		if(permsApi.checkPermission(player, "rewardstime.perks.fivetimes.money")) return 5d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.fourtimes.money")) return 4d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.threetimes.money")) return 3d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.twopointfivetimes.money")) return 2.5;
+		if(permsApi.checkPermission(player, "rewardstime.perks.twotimes.money")) return 2d;
+		if(permsApi.checkPermission(player, "rewardstime.perks.onepointfivetimes.money")) return 1.5;
+		return 1d;
+	}
+	
 	public void addSubGroup(OfflinePlayer player, String group){
 		if(!permsApi.supportsSubGroups()) return;
-		if(!permsApi.supportsOfflinePlayers() && player.getPlayer() == null) return;
-		permsApi.addSubGroup(player, group);
+		if(!permsApi.supportsOfflinePlayers()){
+			if(player.getPlayer() == null) return;
+			permsApi.addSubGroup(player.getPlayer(), group);
+		} else permsApi.addSubGroup(player, group);
+	}
+	
+	public void removeSubGroup(OfflinePlayer player, String group){
+		if(!permsApi.supportsSubGroups()) return;
+		if(!permsApi.supportsOfflinePlayers()){
+			if(player.getPlayer() == null) return;
+			permsApi.removeSubGroup(player.getPlayer(), group);
+		} else permsApi.removeSubGroup(player, group);
+	}
+	
+	public boolean rewardPlayer(String base, OfflinePlayer player, int mult){
+		if(!player.isOnline()) return rewardOfflinePlayer(base, player, mult);
+		if(player.getPlayer() != null) return rewardOnlinePlayer(base, player.getPlayer(), mult);
+		return rewardOfflinePlayer(base, player, mult);
 	}
 	
 	public void givePlayerSubGroups(OfflinePlayer player, String str){
@@ -905,15 +975,99 @@ public class RewardsTime extends JavaPlugin {
 		if(str == null || str.isEmpty()) return;
 		String[] gs = str.split(",");
 		for(String s : gs){
+			if(s.startsWith("-")){
+				s = s.substring(1);
+				removeSubGroup(player, s);
+				continue;
+			}
+			if(s.startsWith("+")) s = s.substring(1);
 			addSubGroup(player, s);
 		}
 	}
 	
-	public void rewardOfflinePlayer(String base, OfflinePlayer player){
+	public boolean rewardOfflinePlayer(String base, OfflinePlayer player, int mult){
+		if(permsApi.supportsOfflinePlayers()) rewardAdvancedOfflinePlayer(player, base, mult);
+		if(!config.contains(base)) return false;
+		rewardBasicOfflinePlayer(player, base, mult);
+		return true;
+	}
+	
+	public void rewardBasicOfflinePlayer(OfflinePlayer player, String base, int mult) {
+		double amount = config.getDouble(base + ".money", 0) * mult;
+		if(amount > 0) economyDeposit(player, amount);
+		else if(amount < 0) economyWithdraw(player, amount);
+		
+		broadcast(config.getString(base + ".broadcast", ""), player.getName(), amount);
+	}
+
+	public void rewardAdvancedOfflinePlayer(OfflinePlayer player, String base, int mult){
+		double amount = config.getDouble(base + ".money", 0) * mult;
+		if(permsApi.checkPermission(player, "rewardstime.rewards.type.money")){
+			amount *= getOfflinePlayerMoneyPerk(player);
+			if(amount > 0) economyDeposit(player, amount);
+			else if(amount < 0) economyWithdraw(player, amount);
+		}
+		
+		if(permsApi.supportsSettingPermissions() && permsApi.checkPermission(player, "rewardstime.rewards.type.perms")){
+			String perms = config.getString(base + ".perms", "");
+			givePermissionsOffline(player, perms);
+		}
+		
+		if(permsApi.checkPermission(player, "rewardstime.rewards.type.broadcast")){
+			broadcast(config.getString(base + ".broadcast", ""), player.getName(), amount);
+		}
+		
+		if(permsApi.supportsSubGroups() && permsApi.checkPermission(player, "rewardstime.rewards.type.subgroups")){
+			givePlayerSubGroups(player, config.getString(base + ".subgroups"));
+		}
 		
 	}
 	
-	public void rewardOnlinePlayer(String base, Player player){
+	public boolean rewardOnlinePlayer(String base, final Player player, int mult){
+		if(!config.contains(base)) return false;
+		double amount = config.getDouble(base + ".money", 0) * mult;
+		if(player.hasPermission("rewardstime.rewards.type.money")){
+			amount *= getPlayerMoneyPerk(player);
+			if(amount > 0) playerReward(player, amount, 0, 0);
+			else if(amount < 0) playerReward(player, 0, 0, amount);
+		}
 		
+		if(permsApi.supportsSettingPermissions() && player.hasPermission( "rewardstime.rewards.type.perms")){
+			String perms = config.getString(base + ".perms", "");
+			givePermissions(player, perms);
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.broadcast")){
+			broadcast(config.getString(base + ".broadcast", ""), player.getName(), amount);
+		}
+		
+		if(permsApi.supportsSubGroups() && player.hasPermission("rewardstime.rewards.type.subgroups")){
+			givePlayerSubGroups(player, config.getString(base + ".subgroups"));
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.items")){
+			
+			//Cannot give items immediately in craft/smelt events as dupe bug emerges
+			final Collection<ItemStack> items = computeDrops(config.getString(base + ".items"), (int)(mult * getPlayerItemPerk(player)));
+			Bukkit.getScheduler().scheduleSyncDelayedTask(this, new Runnable(){
+				@Override
+				public void run() {
+					givePlayerItems(player, items.toArray(new ItemStack[items.size()]));
+				}
+			}, 1);
+			
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.exp")){
+			int xp = config.getInt(base + ".exp", 0) * mult;
+			player.giveExp((int) (xp * getPlayerExpPerk(player)));
+		}
+		
+		if(player.hasPermission("rewardstime.rewards.type.tell")){
+			String tell = config.getString(base + ".tell");
+			tell(tell, player, amount);
+		}
+		
+		return true;
 	}
 }

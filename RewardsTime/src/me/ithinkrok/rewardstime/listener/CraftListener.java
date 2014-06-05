@@ -1,10 +1,7 @@
 package me.ithinkrok.rewardstime.listener;
 
-import java.util.Collection;
-
 import me.ithinkrok.rewardstime.RewardsTime;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
@@ -53,60 +50,12 @@ public class CraftListener implements Listener {
 		
 		String item = event.getCurrentItem().getType().toString().toLowerCase();
 		String base = "craft." + item;
-		double amount = plugin.config.getDouble(base + ".money", 0);
 		String withMeta = base + "/" + event.getCurrentItem().getDurability();
 		if(plugin.config.contains(withMeta)){
-			amount = plugin.config.getDouble(withMeta + ".money");
 			base = withMeta;
 		}
-		amount *= itemAmount;
 		
-		final int itemAmountFinal = itemAmount;
-		
-		if(player.hasPermission("rewardstime.rewards.type.items")){
-			final String dropsStr = plugin.config.getString(base + ".items");
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-				
-				@Override
-				public void run() {
-					Collection<ItemStack> result = plugin.computeDrops(dropsStr, (int) (itemAmountFinal * plugin.getPlayerItemPerk(player)));
-					plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
-				}
-			});
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.exp")){
-			player.giveExp((int) (itemAmount * plugin.config.getInt(base + ".exp", 0) * plugin.getPlayerExpPerk(player)));
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.perms")){
-			String perms = plugin.config.getString(base + ".perms");
-			plugin.givePermissions(player, perms);
-		}
-		
-
-		if(player.hasPermission("rewardstime.rewards.type.subgroups")){
-			plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.broadcast")){
-			String bc = plugin.config.getString(base + ".broadcast");
-			plugin.broadcast(bc, player.getName(), amount);
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.tell")){
-			String tell = plugin.config.getString(base + ".tell");
-			plugin.tell(tell, player, amount);
-		}
-		
-		if(amount == 0 || !player.hasPermission("rewardstime.rewards.type.money")) return;
-		amount *= plugin.getPlayerMoneyPerk(player);
-		if(amount > 0){
-			plugin.playerReward(player, amount, 0, 0);
-		} else if(amount < 0){
-			plugin.playerReward(player, 0, 0, -amount);
-		}
-		
+		plugin.rewardOnlinePlayer(base, player, itemAmount);
 	}
 	
 	@EventHandler(priority = EventPriority.MONITOR)
@@ -140,59 +89,11 @@ public class CraftListener implements Listener {
 		
 		String item = event.getCurrentItem().getType().toString().toLowerCase();
 		String base = "smelt." + item;
-		double amount = plugin.config.getDouble(base + ".money", 0);
 		String withMeta = base + "/" + event.getCurrentItem().getDurability();
 		if(plugin.config.contains(withMeta)){
-			amount = plugin.config.getDouble(withMeta + ".money");
 			base = withMeta;
 		}
-		amount *= itemAmount;
-		
-		final int itemAmountFinal = itemAmount;
-		
-		if(player.hasPermission("rewardstime.rewards.type.items")){
-			final String dropsStr = plugin.config.getString(base + ".items");
-			Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, new Runnable() {
-				
-				@Override
-				public void run() {
-					Collection<ItemStack> result = plugin.computeDrops(dropsStr, (int) (itemAmountFinal * plugin.getPlayerItemPerk(player)));
-					plugin.givePlayerItems(player, result.toArray(new ItemStack[result.size()]));
-				}
-			});
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.exp")){
-			player.giveExp((int) (itemAmount * plugin.config.getInt(base + ".exp", 0) * plugin.getPlayerExpPerk(player)));
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.perms")){
-			String perms = plugin.config.getString(base + ".perms");
-			plugin.givePermissions(player, perms);
-		}
-		
-
-		if(player.hasPermission("rewardstime.rewards.type.subgroups")){
-			plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.broadcast")){
-			String bc = plugin.config.getString(base + ".broadcast");
-			plugin.broadcast(bc, player.getName(), amount);
-		}
-		
-		if(player.hasPermission("rewardstime.rewards.type.tell")){
-			String tell = plugin.config.getString(base + ".tell");
-			plugin.tell(tell, player, amount);
-		}
-		
-		if(amount == 0 || !player.hasPermission("rewardstime.rewards.type.money")) return;
-		amount *= plugin.getPlayerMoneyPerk(player);
-		if(amount > 0){
-			plugin.playerReward(player, amount, 0, 0);
-		} else if(amount < 0){
-			plugin.playerReward(player, 0, 0, -amount);
-		}
+		plugin.rewardOnlinePlayer(base, player, itemAmount);
 	}
 	
 
