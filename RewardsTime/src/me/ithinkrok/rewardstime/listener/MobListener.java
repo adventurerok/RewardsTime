@@ -31,6 +31,7 @@ public class MobListener implements Listener {
 		if(!plugin.mobRewards) return;
 		if(!(event.getDamager() instanceof Player)) return;
 		Player damager = (Player) event.getDamager();
+		if(damager.hasMetadata("NPC")) return;
 		if(!damager.hasPermission("rewardstime.rewards")) return;
 		if(!plugin.enabledGameModes.get(damager.getGameMode())) return;
 		plugin.entityDamage(event.getEntity(), damager, event.getDamage());
