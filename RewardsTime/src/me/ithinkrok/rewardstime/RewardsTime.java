@@ -408,6 +408,7 @@ public class RewardsTime extends JavaPlugin {
 				}
 				if(sender instanceof Player && sender.hasPermission("rewardstime.rewards")){
 					sender.sendMessage(ChatColor.GOLD + "/rewardstime rewards" + white + ": View your recent rewards");
+					sender.sendMessage(ChatColor.GOLD + "/rewardstime perks" + white + ": Check your rewardstime perk levels");
 				}
 				
 				return true;
@@ -956,6 +957,14 @@ public class RewardsTime extends JavaPlugin {
 		} else permsApi.addSubGroup(player, group);
 	}
 	
+	public void addRank(OfflinePlayer player, String rank){
+		if(!permsApi.supportsRanks()) return;
+		if(!permsApi.supportsOfflinePlayers()){
+			if(player.getPlayer() == null) return;
+			permsApi.addRank(player.getPlayer(), rank);
+		} else permsApi.addRank(player, rank);
+	}
+	
 	public void removeSubGroup(OfflinePlayer player, String group){
 		if(!permsApi.supportsSubGroups()) return;
 		if(!permsApi.supportsOfflinePlayers()){
@@ -984,6 +993,14 @@ public class RewardsTime extends JavaPlugin {
 			addSubGroup(player, s);
 		}
 	}
+	
+	public void givePlayerRank(OfflinePlayer player, String str){
+		if(permsApi == null) return;
+		if(str == null || str.isEmpty()) return;
+		str = str.trim();
+		addRank(player, str);
+	}
+	
 	
 	public boolean rewardOfflinePlayer(String base, OfflinePlayer player, int mult){
 		if(permsApi.supportsOfflinePlayers()) rewardAdvancedOfflinePlayer(player, base, mult);
@@ -1021,6 +1038,10 @@ public class RewardsTime extends JavaPlugin {
 			givePlayerSubGroups(player, config.getString(base + ".subgroups"));
 		}
 		
+		if(permsApi.supportsRanks() && permsApi.checkPermission(player, "rewardstime.rewards.type.ranks")){
+			givePlayerRank(player, config.getString(base + ".rank"));
+		}
+		
 	}
 	
 	public boolean rewardOnlinePlayer(String base, final Player player, int mult){
@@ -1043,6 +1064,10 @@ public class RewardsTime extends JavaPlugin {
 		
 		if(permsApi.supportsSubGroups() && player.hasPermission("rewardstime.rewards.type.subgroups")){
 			givePlayerSubGroups(player, config.getString(base + ".subgroups"));
+		}
+		
+		if(permsApi.supportsRanks() && permsApi.checkPermission(player, "rewardstime.rewards.type.ranks")){
+			givePlayerRank(player, config.getString(base + ".rank"));
 		}
 		
 		if(player.hasPermission("rewardstime.rewards.type.items")){

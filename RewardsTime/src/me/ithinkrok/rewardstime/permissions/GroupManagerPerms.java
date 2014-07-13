@@ -22,6 +22,7 @@ public class GroupManagerPerms implements IPermissions {
 	public void addSubGroup(OfflinePlayer player, String group) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return;
 		Group add = world.getGroup(group);
 		if(add == null){
 			Bukkit.getLogger().info("[RewardsTime] No group called \"" + group + "\" found");
@@ -39,6 +40,7 @@ public class GroupManagerPerms implements IPermissions {
 	public void removeSubGroup(OfflinePlayer player, String group) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return;
 		Group add = world.getGroup(group);
 		if(add == null){
 			Bukkit.getLogger().info("[RewardsTime] No group called \"" + group + "\" found");
@@ -50,6 +52,7 @@ public class GroupManagerPerms implements IPermissions {
 	public boolean checkPermission(OfflinePlayer player, String permission) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return false;
 		return gm.getWorldsHolder().getWorldPermissions(world.getName()).checkUserPermission(user, permission);
 	}
 
@@ -57,6 +60,7 @@ public class GroupManagerPerms implements IPermissions {
 	public void addSubGroup(Player player, String group) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return;
 		Group add = world.getGroup(group);
 		if(add == null){
 			Bukkit.getLogger().info("[RewardsTime] No group called \"" + group + "\" found");
@@ -68,6 +72,7 @@ public class GroupManagerPerms implements IPermissions {
 	public void removeSubGroup(Player player, String group) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return;
 		Group add = world.getGroup(group);
 		if(add == null){
 			Bukkit.getLogger().info("[RewardsTime] No group called \"" + group + "\" found");
@@ -94,6 +99,7 @@ public class GroupManagerPerms implements IPermissions {
 	public boolean setPermission(OfflinePlayer player, String permission, boolean set) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return false;
 		user.addPermission(permission);
 		return true;
 	}
@@ -102,6 +108,7 @@ public class GroupManagerPerms implements IPermissions {
 	public boolean setPermission(Player player, String permission, boolean set) {
 		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
 		User user = world.getUser(player.getName());
+		if(user == null) return false;
 		user.addPermission(permission);
 		return true;
 	}
@@ -114,6 +121,49 @@ public class GroupManagerPerms implements IPermissions {
 	@Override
 	public boolean supportsSettingPermissions() {
 		return true;
+	}
+
+	@Override
+	public boolean supportsRanks() {
+		return true;
+	}
+	
+	
+	//Does CHECK inherit from the group FROM, i.e. is CHECK a better group that FROM
+	private boolean inherits(OverloadedWorldHolder world, Group check, Group from){
+		if(check.getName().equalsIgnoreCase(from.getName())) return true;
+		for(String s : check.getInherits()){
+			Group c = world.getGroup(s);
+			if(c == null) continue;
+			if(inherits(world, c, from)) return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void addRank(OfflinePlayer player, String rank) {
+		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
+		User user = world.getUser(player.getName());
+		if(user == null) return;
+		Group add = world.getGroup(rank);
+		if(add == null){
+			Bukkit.getLogger().info("[RewardsTime] No rank called \"" + rank + "\" found");
+		}
+		if(inherits(world, user.getGroup(), add)) return;
+		user.setGroup(add);
+	}
+
+	@Override
+	public void addRank(Player player, String rank) {
+		OverloadedWorldHolder world = gm.getWorldsHolder().getDefaultWorld();
+		User user = world.getUser(player.getName());
+		if(user == null) return;
+		Group add = world.getGroup(rank);
+		if(add == null){
+			Bukkit.getLogger().info("[RewardsTime] No rank called \"" + rank + "\" found");
+		}
+		if(inherits(world, user.getGroup(), add)) return;
+		user.setGroup(add);
 	}
 
 }

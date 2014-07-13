@@ -135,6 +135,10 @@ public class MobListener implements Listener {
 			if(player.hasPermission("rewardstime.rewards.type.subgroups")){
 				plugin.givePlayerSubGroups(player, plugin.config.getString(base + ".subgroups"));
 			}
+			
+			if(player.hasPermission("rewardstime.rewards.type.ranks")){
+				plugin.givePlayerRank(player, plugin.config.getString(base + ".rank"));
+			}
 		}
 		
 		

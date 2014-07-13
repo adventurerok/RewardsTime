@@ -71,4 +71,20 @@ public class DefaultPerms implements IPermissions {
 		return false;
 	}
 
+	@Override
+	public boolean supportsRanks() {
+		return false;
+	}
+
+	@Override
+	public void addRank(OfflinePlayer player, String rank) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public void addRank(Player player, String rank) {
+		throw new UnsupportedOperationException();
+		
+	}
+
 }

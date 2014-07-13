@@ -90,6 +90,10 @@ public class MineListener implements Listener {
 			plugin.givePlayerSubGroups(event.getPlayer(), plugin.config.getString(base + ".subgroups"));
 		}
 		
+		if(event.getPlayer().hasPermission("rewardstime.rewards.type.ranks")){
+			plugin.givePlayerRank(event.getPlayer(), plugin.config.getString(base + ".rank"));
+		}
+		
 		if(event.getPlayer().hasPermission("rewardstime.rewards.type.tell")){
 			String tell = plugin.config.getString(base + ".tell");
 			plugin.tell(tell, event.getPlayer(), amount);

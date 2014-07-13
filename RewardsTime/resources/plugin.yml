@@ -61,6 +61,7 @@ permissions:
             rewardstime.rewards.type.broadcast: true
             rewardstime.rewards.type.perms: true
             rewardstime.rewards.type.subgroups: true
+            rewardstime.rewards.type.ranks: true
     rewardstime.rewards.type.items:
         default: true
     rewardstime.rewards.type.exp:
@@ -74,6 +75,8 @@ permissions:
     rewardstime.rewards.type.perms:
         default: true
     rewardstime.rewards.type.broadcast:
+        default: true
+    rewardstime.rewards.type.ranks:
         default: true
     rewardstime.perks:
         default: false

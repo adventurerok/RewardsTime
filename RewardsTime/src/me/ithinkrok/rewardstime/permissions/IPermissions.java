@@ -5,6 +5,8 @@ import org.bukkit.entity.Player;
 
 public interface IPermissions {
 
+	public void addRank(OfflinePlayer player, String rank);
+	public void addRank(Player player, String rank);
 	public void addSubGroup(OfflinePlayer player, String group);
 	public void addSubGroup(Player player, String group);
 	public void removeSubGroup(OfflinePlayer player, String group);
@@ -15,6 +17,7 @@ public interface IPermissions {
 	public boolean setPermission(Player player, String permission, boolean set);
 	public boolean enabled();
 	public void disable();
+	public boolean supportsRanks();
 	public boolean supportsSubGroups();
 	public boolean supportsOfflinePlayers();
 	public boolean supportsSettingPermissions();
