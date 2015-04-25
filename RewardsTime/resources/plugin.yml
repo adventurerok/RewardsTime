@@ -1,0 +1,161 @@
+name: "RewardsTime"
+version: "1.3.0"
+author: "ithinkrok"
+main: "me.ithinkrok.rewardstime.RewardsTime"
+softdepend: ["Vault", "Votifier", "GroupManager"]
+description: "A plugin for getting rewards from mobs/blocks/crafting/voting"
+commands:
+    rewardstime:
+        description: "Useful plugin commands"
+        permission: "rewardstime.command"
+        aliases: ["rt","rewardtime","rewardt","rtime"]
+        usage: "Unexpected arguments. Type /rewardstime to see options"
+permissions:
+    rewardstime.*:
+        default: false
+        children:
+            rewardstime.command: true
+            rewardstime.set: true
+            rewardstime.get: true
+            rewardstime.reload: true
+            rewardstime.rewards: true
+            rewardstime.perks: true
+    rewardstime.command:
+        default: true
+    rewardstime.set:
+        default: op
+    rewardstime.get:
+        default: op
+    rewardstime.reload:
+        default: op
+    rewardstime.rewards:
+        default: true
+        children:
+            rewardstime.rewards.type: true
+            rewardstime.rewards.from: true
+    rewardstime.rewards.from:
+        default: true
+        children:
+            rewardstime.rewards.from.mobs: true
+            rewardstime.rewards.from.craft: true
+            rewardstime.rewards.from.smelt: true
+            rewardstime.rewards.from.block: true
+            rewardstime.rewards.from.vote: true
+    rewardstime.rewards.from.vote:
+        default: true
+    rewardstime.rewards.from.mobs:
+        default: true
+    rewardstime.rewards.from.craft:
+        default: true
+    rewardstime.rewards.from.smelt:
+        default: true
+    rewardstime.rewards.from.block:
+        default: true
+    rewardstime.rewards.type:
+        default: true
+        children:
+            rewardstime.rewards.type.items: true
+            rewardstime.rewards.type.exp: true
+            rewardstime.rewards.type.money: true
+            rewardstime.rewards.type.tell: true
+            rewardstime.rewards.type.broadcast: true
+            rewardstime.rewards.type.perms: true
+            rewardstime.rewards.type.subgroups: true
+            rewardstime.rewards.type.ranks: true
+    rewardstime.rewards.type.items:
+        default: true
+    rewardstime.rewards.type.exp:
+        default: true
+    rewardstime.rewards.type.money:
+        default: true
+    rewardstime.rewards.type.tell:
+        default: true
+    rewardstime.rewards.type.subgroups:
+        default: true
+    rewardstime.rewards.type.perms:
+        default: true
+    rewardstime.rewards.type.broadcast:
+        default: true
+    rewardstime.rewards.type.ranks:
+        default: true
+    rewardstime.perks:
+        default: false
+        children:
+            rewardstime.perks.fivetimes: true
+            rewardstime.perks.fourtimes: true
+            rewardstime.perks.threetimes: true
+            rewardstime.perks.twopointfivetimes: true
+            rewardstime.perks.twotimes: true
+            rewardstime.perks.onepointfivetimes: true
+    rewardstime.perks.fivetimes:
+        default: false
+        children:
+            rewardstime.perks.fivetimes.items: true
+            rewardstime.perks.fivetimes.exp: true
+            rewardstime.perks.fivetimes.money: true
+    rewardstime.perks.fourtimes:
+        default: false
+        children:
+            rewardstime.perks.fourtimes.items: true
+            rewardstime.perks.fourtimes.exp: true
+            rewardstime.perks.fourtimes.money: true
+    rewardstime.perks.threetimes:
+        default: false
+        children:
+            rewardstime.perks.threetimes.items: true
+            rewardstime.perks.threetimes.exp: true
+            rewardstime.perks.threetimes.money: true
+    rewardstime.perks.twopointfivetimes:
+        default: false
+        children:
+            rewardstime.perks.twopointfivetimes.items: true
+            rewardstime.perks.twopointfivetimes.exp: true
+            rewardstime.perks.twopointfivetimes.money: true
+    rewardstime.perks.twotimes:
+        default: false
+        children:
+            rewardstime.perks.twotimes.items: true
+            rewardstime.perks.twotimes.exp: true
+            rewardstime.perks.twotimes.money: true
+    rewardstime.perks.onepointfivetimes:
+        default: false
+        children:
+            rewardstime.perks.onepointfivetimes.items: true
+            rewardstime.perks.onepointfivetimes.exp: true
+            rewardstime.perks.onepointfivetimes.money: true
+    rewardstime.perks.fivetimes.items:
+        default: false
+    rewardstime.perks.fivetimes.exp:
+        default: false
+    rewardstime.perks.fivetimes.money:
+        default: false
+    rewardstime.perks.fourtimes.items:
+        default: false
+    rewardstime.perks.fourtimes.exp:
+        default: false
+    rewardstime.perks.fourtimes.money:
+        default: false
+    rewardstime.perks.threetimes.items:
+        default: false
+    rewardstime.perks.threetimes.exp:
+        default: false
+    rewardstime.perks.threetimes.money:
+        default: false
+    rewardstime.perks.twopointfivetimes.items:
+        default: false
+    rewardstime.perks.twopointfivetimes.exp:
+        default: false
+    rewardstime.perks.twopointfivetimes.money:
+        default: false
+    rewardstime.perks.twotimes.items:
+        default: false
+    rewardstime.perks.twotimes.exp:
+        default: false
+    rewardstime.perks.twotimes.money:
+        default: false
+    rewardstime.perks.onepointfivetimes.items:
+        default: false
+    rewardstime.perks.onepointfivetimes.exp:
+        default: false
+    rewardstime.perks.onepointfivetimes.money:
+        default: false
