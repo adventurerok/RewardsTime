@@ -21,17 +21,23 @@ public class TaskDailyBonus extends BukkitRunnable {
 	@Override
 	public void run() {
 		if(main.stopped) return;
-		if(plrs == null) plrs = Bukkit.getOfflinePlayers();
-		int left = 10;
-		while(index < plrs.length && left > 0){
-			doPlayer(plrs[index]);
-			
-			++index;
-			--left;
-		}
-		if(index >= plrs.length){
-			plugin.broadcast(plugin.config.getString("daily.broadcast", ""), "all", plugin.config.getDouble("daily.money", 0));
+		try {
+			if (plrs == null) plrs = Bukkit.getOfflinePlayers();
+			int left = 10;
+			while (index < plrs.length && left > 0) {
+				doPlayer(plrs[index]);
+
+				++index;
+				--left;
+			}
+			if (index >= plrs.length) {
+				plugin.broadcast(plugin.config.getString("daily.broadcast", ""), "all", plugin.config.getDouble("daily.money", 0));
+				cancel();
+			}
+		} catch (Exception e){
 			cancel();
+			plugin.getLogger().warning("Exception while resetting daily bonuses:");
+			e.printStackTrace();
 		}
 	}
 	
