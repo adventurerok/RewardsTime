@@ -23,5 +23,6 @@
     <orderEntry type="library" name="Maven: net.milkbowl.vault:Vault:1.5.2" level="project" />
     <orderEntry type="library" name="Maven: net.ess3:EssentialsGroupManager:2.14-SNAPSHOT" level="project" />
     <orderEntry type="library" name="Maven: org.projectlombok:lombok:1.12.2" level="project" />
+    <orderEntry type="library" name="Maven: com.vexsoftware:votifier:1.9" level="project" />
   </component>
 </module>
