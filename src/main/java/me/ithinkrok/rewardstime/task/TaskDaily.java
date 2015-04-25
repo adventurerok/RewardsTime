@@ -76,9 +76,9 @@ public class TaskDaily extends BukkitRunnable {
 		}
 		int ticks = (int) (diff / 50);
 		
-		TaskDaily dulz = new TaskDaily(plugin, targetTime);
-		plugin.dailyThread = dulz;
-		dulz.runTaskLaterAsynchronously(plugin, Math.min(ticks, MAX_SKIP_TICKS));
+		TaskDaily taskDaily = new TaskDaily(plugin, targetTime);
+		plugin.dailyThread = taskDaily;
+		taskDaily.runTaskLaterAsynchronously(plugin, Math.min(ticks, MAX_SKIP_TICKS));
 	}
 	
 	public void stop(){
